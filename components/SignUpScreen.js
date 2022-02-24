@@ -1,37 +1,33 @@
 import React, { Component } from 'react';
-import { Alert, Button, Platform, Text, TextInput, View } from 'react-native';
+import { Button, TextInput, View } from 'react-native';
+
+import DisplayAlert from './DisplayAlert';
+
+const displayAlert = new DisplayAlert();
 
 class SignUpScreen extends Component {
     constructor(props){
         super(props);
 
         this.state={
-            first_name: '',
-            last_name: '',
+            firstName: '',
+            lastName: '',
             email: '',
             password: ''
         }
     }
 
     handleEmailInput = (email) => {
-        this.setState({email: email});
+        this.setState({email});
     }
 
     handlePasswordInput = (password) => {
-        this.setState({password: password});
+        this.setState({password});
     }
 
-    displayAlert(msg) {
-        if (Platform.OS == 'web'){
-            alert(msg);
-        }
-        else{
-            Alert.alert(msg);
-        }
-    }
-
-    emailIsValid(email) {
-        const myRe = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+    emailIsValid() {
+        const { email } = this.state;
+        const myRe = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/
 
         if (myRe.exec(email)){
             return true;
@@ -40,40 +36,41 @@ class SignUpScreen extends Component {
     }
 
     signup() {
-        if (this.state.email == '' || this.state.password == '' || this.state.first_name == '' || this.state.last_name == ''){
-            this.displayAlert('All fields must be entered.');
+        const { email, password, firstName, lastName} = this.state;
+        if (email === '' || password === '' || firstName === '' || lastName === ''){
+            displayAlert.displayAlert('All fields must be entered.');
         }
-        else if (!this.emailIsValid(this.state.email)){
-            this.displayAlert('Invalid email.');
+        else if (!this.emailIsValid(email)){
+            displayAlert.displayAlert('Invalid email.');
         }
-        else if (this.state.password.length <= 5){
-            this.displayAlert('Password must be at least 6 characters');
+        else if (password.length <= 5){
+            displayAlert.displayAlert('Password must be at least 6 characters');
         }
         else {
-            return fetch('http://localhost:3333/api/1.0.0/user', {
+            fetch('http://localhost:3333/api/1.0.0/user', {
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    first_name: this.state.first_name,
-                    last_name: this.state.last_name,
-                    email: this.state.email,
-                    password: this.state.password
+                    first_name: firstName,
+                    last_name: lastName,
+                    email,
+                    password
                 })
             })
             .then((response) => {
-                if (response.status == 400){
-                    this.displayAlert('User already created');
-                    return Promise.reject('Bad request. Status: ' + response.status);
+                if (response.status === 400){
+                    displayAlert.displayAlert('User already created');
+                    Promise.reject(new Error(`Bad request. Status: ${  response.status}`));
                 }
-                else if (response.status == 500){
-                    this.displayAlert('Server error.');
-                    return Promise.reject('Server error. Status: ' + response.status);
+                if (response.status === 500){
+                    displayAlert.displayAlert('Server error.');
+                    Promise.reject(new Error(`Server error. Status: ${  response.status}`));
                 }
-                else {
-                    this.displayAlert('User created.');
-                }
+                
+                    displayAlert.displayAlert('User created.');
+                
             })
             .catch((error) => {
                 console.log(error);
@@ -82,12 +79,13 @@ class SignUpScreen extends Component {
     }
 
     render(){
+        const { firstName, lastName, email, password } = this.state;
         return(
             <View>
-                <TextInput placeholder='First name...' onChangeText={value => {this.setState({first_name: value})}} value={this.state.first_name}/>
-                <TextInput placeholder='Last name...' onChangeText={value => {this.setState({last_name: value})}} value={this.state.last_name}/>
-                <TextInput placeholder='Email...' onChangeText={this.handleEmailInput} value={this.state.email}/>
-                <TextInput placeholder='Password...' onChangeText={this.handlePasswordInput} value={this.state.password}/>
+                <TextInput placeholder='First name...' onChangeText={value => {this.setState({firstName: value})}} value={firstName}/>
+                <TextInput placeholder='Last name...' onChangeText={value => {this.setState({lastName: value})}} value={lastName}/>
+                <TextInput placeholder='Email...' onChangeText={this.handleEmailInput} value={email}/>
+                <TextInput placeholder='Password...' onChangeText={this.handlePasswordInput} value={password}/>
                 <Button title='Sign Up' onPress={() => {this.signup()}}/>
             </View>
         )
