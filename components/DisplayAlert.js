@@ -1,14 +1,11 @@
 import { Platform, Alert } from 'react-native';
 
 class DisplayAlert{
-    constructor(){}
     displayAlert(msg) {
-        if (Platform.OS == 'web'){
+        if (Platform.OS === 'web'){
             return alert(msg);
         }
-        else{
-            return Alert.alert(msg);
-        }
+        return Alert.alert(msg);
     }
 }
 
