@@ -29,7 +29,9 @@ class FeedScreen extends Component {
             uploadModalVisible: false,
             viewPostModalVisible: false,
             postText: '',
-            currentPost: {}
+            currentPost: {},
+            editText: '',
+            editVisible: false
         }
     }
 
@@ -50,7 +52,7 @@ class FeedScreen extends Component {
 
     getIds(){
         const { data } = this.state;
-        const idList = [];
+        const idList = [data.id];
         console.log(data.id);
         fetch(`http://localhost:3333/api/1.0.0/user/${ data.id }/friends`, {
             method: 'GET',
@@ -76,7 +78,6 @@ class FeedScreen extends Component {
         const { data, ids } = this.state;
         const postsList = [];
         const idList = ids;
-        idList.push(data.id);
         for (let i = 0; i < idList.length; i+=1){
             fetch(`http://localhost:3333/api/1.0.0/user/${ idList[i] }/post`, {
                 method: 'GET',
@@ -147,7 +148,30 @@ class FeedScreen extends Component {
         })
     }
 
-    // updatePost() {}
+    updatePost(postId) {
+        const { data, editText } = this.state;
+        fetch(`http://localhost:3333/api/1.0.0/user/${ data.id }/post/${ postId }`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Authorization': data.token
+            },
+            body: JSON.stringify({text: editText})
+        })
+        .then((response) => {
+            if (response.status === 200){
+                displayAlert.displayAlert('Post updated.');
+            }
+            else {
+                displayAlert.displayAlert(response.statusText);
+            }
+            this.getPosts();
+            this.setState({viewPostModalVisible: false})
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
 
     // likePost(){}
 
@@ -169,7 +193,7 @@ class FeedScreen extends Component {
     }
 
     viewSinglePost(){
-        const { currentPost } = this.state;
+        const { data, currentPost, editVisible, editText } = this.state;
         if(Object.keys(currentPost).length > 0){
             return (
                 <View>
@@ -177,11 +201,16 @@ class FeedScreen extends Component {
                     <Text>{currentPost.author.first_name} {currentPost.author.last_name}</Text>
                     <Text><Moment data={currentPost.timestamp} format="LLLL"/></Text>
                     <Text>{currentPost.text}</Text>
-                    <Button title='Edit' />
-                    <Button title='Delete' onPress={() => this.deletePost(currentPost.post_id)}/>
-                    <Button title='Cancel' onPress={() => this.setState({viewPostModalVisible: false})}/>
-                    <Button title='Like' />
-                    <Button title='Unlike' />
+                    {editVisible && 
+                        <View>
+                            <TextInput placeholder='Enter text' onChangeText={(newEditText) => this.setState({editText: newEditText})} value={editText}/>
+                            <Button title='Update' onPress={() => this.updatePost(currentPost.post_id)}/>
+                        </View>}
+                    {!editVisible && (currentPost.author.user_id === data.id) && <Button title='Edit' onPress={() => this.setState({editVisible: true})}/>}
+                    {!editVisible && (currentPost.author.user_id === data.id) && <Button title='Delete' onPress={() => this.deletePost(currentPost.post_id)}/>}
+                    <Button title='Cancel' onPress={() => {this.setState({viewPostModalVisible: false, editVisible: false, editText: ''})}}/>
+                    {!editVisible && <Button title='Like' />}
+                    {!editVisible && <Button title='Unlike' />}
                 </View>
             )
         }
@@ -192,7 +221,7 @@ class FeedScreen extends Component {
         const { uploadModalVisible, viewPostModalVisible, postText } = this.state;
         return (
             <View>
-                <Modal animationType='slide' 
+                <Modal animationType='none' 
                     transparent
                     visible={uploadModalVisible} 
                     onRequestClose={() => {
@@ -204,7 +233,7 @@ class FeedScreen extends Component {
                         <TextInput placeholder='Enter text...' onChangeText={(newPostText) => this.setState({postText: newPostText})} value={postText}/>
                         <Button title='Post' onPress={() => {
                             this.uploadPost();
-                            this.setState({uploadModalVisible: false})
+                            this.setState({uploadModalVisible: false, postText: ''})
                         }}/>
                     </View>
                 </Modal>
