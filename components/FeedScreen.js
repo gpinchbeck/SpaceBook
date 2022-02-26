@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FlatList, Text, View, Modal, TextInput } from 'react-native';
+import { Button, FlatList, Text, View, Modal, TextInput, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PropTypes from 'prop-types';
 import Moment from 'react-moment';
@@ -26,8 +26,10 @@ class FeedScreen extends Component {
             data: {},
             posts: [],
             ids: [],
-            modalVisible: false,
-            postText: ''
+            uploadModalVisible: false,
+            viewPostModalVisible: false,
+            postText: '',
+            currentPost: {}
         }
     }
 
@@ -122,38 +124,105 @@ class FeedScreen extends Component {
         })
     }
 
+    deletePost(postId) {
+        const { data } = this.state;
+        fetch(`http://localhost:3333/api/1.0.0/user/${ data.id }/post/ ${ postId }`, {
+            method: 'DELETE',
+            headers: {
+                'X-Authorization': data.token
+            }
+        })
+        .then((response) => {
+            if (response.status === 200){
+                displayAlert.displayAlert('Post deleted.');
+            }
+            else {
+                displayAlert.displayAlert('You can only delete your own post.');
+            }
+            this.getPosts();
+            this.setState({viewPostModalVisible: false});
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+    }
+
+    // updatePost() {}
+
+    // likePost(){}
+
+    // deleteLike() {}
+
+    viewPost(){
+        const { posts } = this.state;
+        return (
+            <FlatList extraData={this.state} data={posts}
+                renderItem={({item}) => (
+                    <Pressable onPress={() => {this.setState({viewPostModalVisible: true, currentPost: item})}}>
+                        <Text>{item.author.first_name} {item.author.last_name}</Text>
+                        <Text><Moment date={item.timestamp} format="LLLL"/></Text>
+                        <Text>{item.text}</Text>
+                    </Pressable>
+                )}
+            />
+        )
+    }
+
+    viewSinglePost(){
+        const { currentPost } = this.state;
+        if(Object.keys(currentPost).length > 0){
+            return (
+                <View>
+                    {/* <Text>{currentPost.post_id}</Text> */}
+                    <Text>{currentPost.author.first_name} {currentPost.author.last_name}</Text>
+                    <Text><Moment data={currentPost.timestamp} format="LLLL"/></Text>
+                    <Text>{currentPost.text}</Text>
+                    <Button title='Edit' />
+                    <Button title='Delete' onPress={() => this.deletePost(currentPost.post_id)}/>
+                    <Button title='Cancel' onPress={() => this.setState({viewPostModalVisible: false})}/>
+                    <Button title='Like' />
+                    <Button title='Unlike' />
+                </View>
+            )
+        }
+        return null;
+    }
+
     render(){
-        const { posts, modalVisible, postText } = this.state;
+        const { uploadModalVisible, viewPostModalVisible, postText } = this.state;
         return (
             <View>
                 <Modal animationType='slide' 
                     transparent
-                    visible={modalVisible} 
+                    visible={uploadModalVisible} 
                     onRequestClose={() => {
                         // displayAlert.displayAlert('')
-                        this.setState({modalVisible: !modalVisible});
+                        this.setState({uploadModalVisible: !uploadModalVisible});
                     }}
                 >
                     <View>
                         <TextInput placeholder='Enter text...' onChangeText={(newPostText) => this.setState({postText: newPostText})} value={postText}/>
                         <Button title='Post' onPress={() => {
                             this.uploadPost();
-                            this.setState({modalVisible: false})
+                            this.setState({uploadModalVisible: false})
                         }}/>
                     </View>
                 </Modal>
                 <View>
-                    <FlatList extraData={this.state} data={posts}
-                        renderItem={({item}) => (
-                            <View>
-                                <Text>{item.author.first_name} {item.author.last_name}</Text>
-                                <Text><Moment date={item.timestamp} format="LLLL"/></Text>
-                                <Text>{item.text}</Text>
-                            </View>
-                        )}
-                    />
-                    <Button title='Add post' onPress={() => this.setState({modalVisible: true})}/>
+                    {this.viewPost()}
+                    <Button title='Add post' onPress={() => this.setState({uploadModalVisible: true})}/>
                 </View>
+                <Modal animationType='none'
+                    transparent
+                    visible={viewPostModalVisible}
+                    onRequestClose={() => {
+                        this.setState({viewPostModalVisible: !viewPostModalVisible});
+                    }}
+                >
+                    <View>
+                        {this.viewSinglePost()}
+                    </View>
+                </Modal>
             </View>
         )
     }
