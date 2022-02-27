@@ -1,22 +1,13 @@
 import React, { Component } from 'react';
 import { Button, Text, View, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import PropTypes from 'prop-types';
+
 import DisplayAlert from './DisplayAlert';
+import Storage from './Storage'
+
+const asyncStorage = new Storage();
 
 const displayAlert = new DisplayAlert();
-
-const getData = async (done) => {
-    try {
-        const jsonValue = await AsyncStorage.getItem('@spacebook_details');
-        const data = JSON.parse(jsonValue);
-        return done(data);
-    } catch (e) {
-        console.log(e);
-    }
-    return null;
-};
-
 
 class ProfileScreen extends Component {
     constructor(props) {
@@ -31,7 +22,7 @@ class ProfileScreen extends Component {
 
     componentDidMount() {
         const { navigation } = this.props;
-        getData((data) => {
+        asyncStorage.getData((data) => {
             this.setState({
                 loginInfo: data,
             });

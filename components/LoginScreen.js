@@ -1,18 +1,11 @@
 import React, { Component } from 'react';
 import { Button, TextInput, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PropTypes } from 'prop-types';
 
 import DisplayAlert from './DisplayAlert';
+import Storage from './Storage'
 
-const storeData = async (value) => {
-    try {
-        const jsonValue = JSON.stringify(value);
-        await AsyncStorage.setItem('@spacebook_details', jsonValue);
-    } catch (e) {
-        console.error(e);
-    }
-};
+const asyncStorage = new Storage();
 
 const displayAlert = new DisplayAlert();
 
@@ -80,7 +73,7 @@ class LoginScreen extends Component {
                     console.log("hm");
                 }
                 displayAlert.displayAlert('Logged in.');
-                storeData(json);
+                asyncStorage.storeData(json);
                 this.setState({email: '', password: ''});
                 nav.navigate('Home');
             })

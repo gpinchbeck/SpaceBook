@@ -1,18 +1,10 @@
 import React, { Component } from 'react';
 import { Button, FlatList, Text, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import DisplayAlert from './DisplayAlert';
 
-const getData = async (done) => {
-    try {
-        const jsonValue = await AsyncStorage.getItem('@spacebook_details');
-        const data = JSON.parse(jsonValue);
-        return done(data);
-    } catch (e) {
-        console.log(e);
-    }
-    return null;
-};
+import DisplayAlert from './DisplayAlert';
+import Storage from './Storage'
+
+const asyncStorage = new Storage();
 
 const displayAlert = new DisplayAlert();
 
@@ -27,7 +19,7 @@ class FriendRequestScreen extends Component {
     }
 
     componentDidMount(){
-        getData((data) => {
+        asyncStorage.getData((data) => {
             this.setState({
                 data
             });

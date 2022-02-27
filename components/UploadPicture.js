@@ -1,20 +1,13 @@
 import React, { Component } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Camera } from 'expo-camera';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import DisplayAlert from './DisplayAlert';
+import Storage from './Storage'
 
+const asyncStorage = new Storage();
 
-const getData = async (done) => {
-    try {
-        const jsonValue = await AsyncStorage.getItem('@spacebook_details');
-        const data = JSON.parse(jsonValue);
-        return done(data);
-    } catch (e) {
-        console.log(e);
-    }
-    return null;
-};
+const displayAlert = new DisplayAlert();
 
 class UploadPicture extends Component {
     constructor(props){
@@ -30,7 +23,7 @@ class UploadPicture extends Component {
     async componentDidMount(){
         const { status } = await Camera.requestCameraPermissionsAsync();
         this.setState({hasPermission: status === 'granted'});
-        getData((data) => {
+        asyncStorage.getData((data) => {
             this.setState({
                 loginInfo: data,
             });
@@ -52,7 +45,7 @@ class UploadPicture extends Component {
             body: blob
         })
         .then((res) => {
-            console.log("Picture added", res);
+            displayAlert(`Picture added ${ res }`);
         })
         .catch((error) => {
             console.log(error);
