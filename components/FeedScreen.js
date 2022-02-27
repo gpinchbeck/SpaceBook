@@ -48,8 +48,6 @@ class FeedScreen extends Component {
         });
     }
 
-    // get all ids from friends (for loop stuff)
-
     getIds(){
         const { data } = this.state;
         const idList = [data.id];
@@ -65,7 +63,6 @@ class FeedScreen extends Component {
             for (let i = 0; i < responseJson.length; i+=1){
                 idList.push(responseJson[i].user_id);
             }
-            console.log(idList.length);
             this.setState({ids: idList});
             this.getPosts();
         })
@@ -173,9 +170,52 @@ class FeedScreen extends Component {
         });
     }
 
-    // likePost(){}
+    likePost(userPostId, postId){
+        const { data } = this.state;
+        fetch(`http://localhost:3333/api/1.0.0/user/${ userPostId }/post/${ postId }/like`, {
+            method: 'POST',
+            headers: {
+                'X-Authorization': data.token
+            }
+        })
+        .then((response) => {
+            if (response.status === 200){
+                displayAlert.displayAlert('Post liked');
+            }
+            else if (response.status === 403) {
+                displayAlert.displayAlert('Cannot like your own posts.');
+            }
+            else if (response.status === 400) {
+                displayAlert.displayAlert('Cannot like posts more than once or cannot unlike a post that has not been liked.')
+            }
+            this.getPosts();
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+    }
 
-    // deleteLike() {}
+    deleteLike(userPostId, postId) {
+        const { data } = this.state;
+        fetch(`http://localhost:3333/api/1.0.0/user/${ userPostId }/post/${ postId }/like`, {
+            method: 'DELETE',
+            headers: {
+                'X-Authorization': data.token
+            }
+        })
+        .then((response) => {
+            if (response.status === 200){
+                displayAlert.displayAlert('Post unliked');
+            }
+            else {
+                displayAlert.displayAlert(response.statusText);
+            }
+            this.getPosts();
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+    }
 
     viewPost(){
         const { posts } = this.state;
@@ -186,6 +226,7 @@ class FeedScreen extends Component {
                         <Text>{item.author.first_name} {item.author.last_name}</Text>
                         <Text><Moment date={item.timestamp} format="LLLL"/></Text>
                         <Text>{item.text}</Text>
+                        <Text>Likes: {item.numLikes}</Text>
                     </Pressable>
                 )}
             />
@@ -201,6 +242,7 @@ class FeedScreen extends Component {
                     <Text>{currentPost.author.first_name} {currentPost.author.last_name}</Text>
                     <Text><Moment data={currentPost.timestamp} format="LLLL"/></Text>
                     <Text>{currentPost.text}</Text>
+                    <Text>Likes: {currentPost.numLikes}</Text>
                     {editVisible && 
                         <View>
                             <TextInput placeholder='Enter text' onChangeText={(newEditText) => this.setState({editText: newEditText})} value={editText}/>
@@ -209,8 +251,8 @@ class FeedScreen extends Component {
                     {!editVisible && (currentPost.author.user_id === data.id) && <Button title='Edit' onPress={() => this.setState({editVisible: true})}/>}
                     {!editVisible && (currentPost.author.user_id === data.id) && <Button title='Delete' onPress={() => this.deletePost(currentPost.post_id)}/>}
                     <Button title='Cancel' onPress={() => {this.setState({viewPostModalVisible: false, editVisible: false, editText: ''})}}/>
-                    {!editVisible && <Button title='Like' />}
-                    {!editVisible && <Button title='Unlike' />}
+                    {!editVisible && <Button title='Like' onPress={() => this.likePost(currentPost.author.user_id,currentPost.post_id)}/>}
+                    {!editVisible && <Button title='Unlike' onPress={() => this.deleteLike(currentPost.author.user_id,currentPost.post_id)}/>}
                 </View>
             )
         }
