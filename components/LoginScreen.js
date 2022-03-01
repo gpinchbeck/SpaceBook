@@ -19,14 +19,6 @@ class LoginScreen extends Component {
         }
     }
 
-    handleEmailInput = (email) => {
-        this.setState({email});
-    }
-
-    handlePasswordInput = (password) => {
-        this.setState({password});
-    }
-
     emailIsValid() {
         const { email } = this.state;
         const myRe = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/
@@ -48,7 +40,7 @@ class LoginScreen extends Component {
         }
         else {
             fetch('http://localhost:3333/api/1.0.0/login', {
-                method: 'post',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -69,16 +61,13 @@ class LoginScreen extends Component {
                 return response.json();
             })
             .then((json) => {
-                if (json === {}){
-                    console.log("hm");
-                }
                 displayAlert.displayAlert('Logged in.');
                 asyncStorage.storeData(json);
                 this.setState({email: '', password: ''});
                 nav.navigate('Home');
             })
             .catch((error) => {
-                console.log(error);
+                displayAlert.displayAlert(error);
             });
         }
     }
@@ -88,8 +77,8 @@ class LoginScreen extends Component {
         const { email, password } = this.state;
         return(
             <View>
-                <TextInput placeholder='Enter email...' onChangeText={this.handleEmailInput} value={email}/>
-                <TextInput placeholder='Enter password...' onChangeText={this.handlePasswordInput} value={password}/>
+                <TextInput placeholder='Enter email...' onChangeText={(newEmail) => this.setState({email: newEmail})} value={email}/>
+                <TextInput placeholder='Enter password...' onChangeText={(newPass) => this.setState({password: newPass})} value={password}/>
                 <Button title='Login' onPress={() => this.login(navigation)}/>
                 <Button title='Sign Up' onPress={() => navigation.navigate("SignUp")}/>
             </View>

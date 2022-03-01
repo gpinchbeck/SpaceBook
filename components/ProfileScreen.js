@@ -43,7 +43,18 @@ class ProfileScreen extends Component {
                 'X-Authorization': loginInfo.token
             }
         })
-        .then((response) => response.blob())
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            }
+            return response.blob()
+        })
         .then((responseBlob) => {
             const data = URL.createObjectURL(responseBlob);
             this.setState({
@@ -51,48 +62,63 @@ class ProfileScreen extends Component {
             });
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         })
     }
 
-    async getUserData() {
+    getUserData() {
         const { loginInfo } = this.state;
-        const response = await fetch(
-            `http://localhost:3333/api/1.0.0/user/${  loginInfo.id}`,
-            {
-                method: 'get',
-                headers: {
-                    'X-Authorization': loginInfo.token,
-                },
+        fetch(`http://localhost:3333/api/1.0.0/user/${  loginInfo.id}`,{
+            method: 'GET',
+            headers: {
+                'X-Authorization': loginInfo.token
             }
-        );
-        const result = await response.json();
-        this.setState({
-            userData: result,
-        });
+        })
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            }
+
+            return response.json()
+        })
+        .then((responseJson) => {
+            this.setState({
+                userData: responseJson,
+            });
+        })
+        .catch((error) => {
+            displayAlert.displayAlert(error);
+        })
+        
     }
 
     logout(nav) {
         const { loginInfo } = this.state;
         fetch('http://localhost:3333/api/1.0.0/logout', {
-            method: 'post',
+            method: 'POST',
             headers: {
                 'X-Authorization': loginInfo.token,
-            },
-            body: {},
+            }
         })
-            .then((response) => {
-                console.log(response.status);
-                if (response.status === 200) {
-                    displayAlert.displayAlert('Logged out.');
-                    nav.navigate('Login');
-                } else if (response.status === 401 || response.status === 500) {
-                    displayAlert.displayAlert(response.statusText);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            }
+            nav.navigate('Login');
+            return displayAlert.displayAlert('Logged out.');
+        })
+        .catch((error) => {
+            displayAlert.displayAlert(error);
+        });
     }
 
     render() {

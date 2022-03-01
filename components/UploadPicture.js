@@ -33,8 +33,8 @@ class UploadPicture extends Component {
     sendToServer = async (data) => {
         const { loginInfo } = this.state;
 
-        const response = await fetch(data.base64);
-        const blob = await response.blob();
+        const res = await fetch(data.base64);
+        const blob = await res.blob();
 
         return fetch(`http://localhost:3333/api/1.0.0/user/${  loginInfo.id  }/photo`, {
             method: 'POST',
@@ -44,11 +44,23 @@ class UploadPicture extends Component {
             },
             body: blob
         })
-        .then((res) => {
-            displayAlert(`Picture added ${ res }`);
+        .then((response) => {
+            if (response.status === 400){
+                return Promise.reject(new Error(`Bad request. Status: ${  response.status}`));
+            }
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
+            return displayAlert(`Picture uploaded`);
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         })
     }
 
@@ -80,12 +92,10 @@ class UploadPicture extends Component {
                     </Camera>
                 </View>
             );
-        }
-        
-            return (
-                <Text>No access to camera</Text>
-            );
-        
+        }    
+        return (
+            <Text>No access to camera</Text>
+        );      
     }
 }
 

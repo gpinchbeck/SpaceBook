@@ -35,18 +35,25 @@ class FriendRequestScreen extends Component {
                 'X-Authorization': data.token
             }
         })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
+            return response.json()
+        })
         .then((responseJson) => {
             this.setState({requestList: responseJson})
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         });
     }
 
     acceptRequest(id){
         const { data } = this.state;
-        console.log(id, 'accepted');
         fetch(`http://localhost:3333/api/1.0.0/friendrequests/${ id }`, {
             method: 'POST',
             headers: {
@@ -54,16 +61,20 @@ class FriendRequestScreen extends Component {
             }
         })
         .then((response) => {
-            if (response.status === 200){
-                displayAlert.displayAlert('Accepted.');
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
             }
-            else {
-                displayAlert.displayAlert(`${ response.statusText } ${ response.status }`);
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
             }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
             this.getRequests();
+            return displayAlert.displayAlert('Accepted.');
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         });
     }
 
@@ -76,16 +87,20 @@ class FriendRequestScreen extends Component {
             }
         })
         .then((response) => {
-            if (response.status === 200){
-                displayAlert.displayAlert('Declined.');
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
             }
-            else {
-                displayAlert.displayAlert(`${ response.statusText } ${ response.status }`);
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
             }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
             this.getRequests();
+            return displayAlert.displayAlert('Declined.');
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         });
     }
 

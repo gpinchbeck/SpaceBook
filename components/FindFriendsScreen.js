@@ -40,20 +40,30 @@ class FindFreindsScreen extends Component {
                 'X-Authorization': data.token
             }
         })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.status === 400){
+                return Promise.reject(new Error(`Bad request. Status: ${  response.status}`));
+            }
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
+            return response.json()
+        })
         .then((responseJson) => {
             this.setState({
                 users: responseJson
             })
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         });
     }
 
     addFriend(friendId){
         const { data } = this.state;
-        console.log(friendId, data.id)
         fetch(`http://localhost:3333/api/1.0.0/user/${ friendId }/friends`, {
             method: 'POST',
             headers: {
@@ -61,18 +71,22 @@ class FindFreindsScreen extends Component {
             }
         })
         .then((response) => {
-            if (response.status === 200 || response.status === 201){
-                displayAlert.displayAlert('Request sent.');
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
             }
-            else if (response.status === 403){
-                displayAlert.displayAlert(`Already friends or request already sent`);
+            if (response.status === 403){
+                return Promise.reject(new Error(`User is already added as a friend. Status: ${  response.status}`));
             }
-            else {
-                displayAlert.displayAlert(response.statusText + response.status);
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
             }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
+            return displayAlert.displayAlert('Request sent.');
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         });
     }
 

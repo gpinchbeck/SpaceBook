@@ -17,14 +17,6 @@ class SignUpScreen extends Component {
         }
     }
 
-    handleEmailInput = (email) => {
-        this.setState({email});
-    }
-
-    handlePasswordInput = (password) => {
-        this.setState({password});
-    }
-
     emailIsValid() {
         const { email } = this.state;
         const myRe = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/
@@ -61,19 +53,15 @@ class SignUpScreen extends Component {
             })
             .then((response) => {
                 if (response.status === 400){
-                    displayAlert.displayAlert('User already created');
-                    Promise.reject(new Error(`Bad request. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`User already created. Status: ${  response.status}`));
                 }
                 if (response.status === 500){
-                    displayAlert.displayAlert('Server error.');
-                    Promise.reject(new Error(`Server error. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`Server error. Status: ${  response.status}`));
                 }
-                
-                    displayAlert.displayAlert('User created.');
-                
+                return displayAlert.displayAlert('User created.');
             })
             .catch((error) => {
-                console.log(error);
+                displayAlert.displayAlert(error);
             });
         }
     }
@@ -84,8 +72,8 @@ class SignUpScreen extends Component {
             <View>
                 <TextInput placeholder='First name...' onChangeText={value => {this.setState({firstName: value})}} value={firstName}/>
                 <TextInput placeholder='Last name...' onChangeText={value => {this.setState({lastName: value})}} value={lastName}/>
-                <TextInput placeholder='Email...' onChangeText={this.handleEmailInput} value={email}/>
-                <TextInput placeholder='Password...' onChangeText={this.handlePasswordInput} value={password}/>
+                <TextInput placeholder='Email...' onChangeText={value => this.setState({email: value})} value={email}/>
+                <TextInput placeholder='Password...' onChangeText={value => this.setState({password: value})} value={password}/>
                 <Button title='Sign Up' onPress={() => {this.signup()}}/>
             </View>
         )

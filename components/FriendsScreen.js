@@ -3,8 +3,11 @@ import { View, Text, FlatList, Button } from 'react-native';
 import PropTypes from 'prop-types';
 
 import Storage from './Storage'
+import DisplayAlert from './DisplayAlert';
 
 const asyncStorage = new Storage();
+
+const displayAlert = new DisplayAlert();
 
 class FriendsScreen extends Component {
     constructor(props){
@@ -37,14 +40,28 @@ class FriendsScreen extends Component {
                 'X-Authorization': data.token
             }
         })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 403){
+                return Promise.reject(new Error(`Can only view the friends of yourself or your friends. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
+            return response.json()
+        })
         .then((responseJson) => {
             this.setState({
                 friends: responseJson
             });
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         })
     }
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, FlatList, Text, View, Modal, TextInput, Pressable } from 'react-native';
+import { Button, FlatList, Text, View, Modal, TextInput, Pressable, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 import Moment from 'react-moment';
 
@@ -38,28 +38,32 @@ class FeedScreen extends Component {
                 this.getIds();
             });
         });
-        // getData((data) => {
-        //     this.setState({
-        //         data
-        //     });
-        //     this.getIds();
-        //     navigation.addListener('focus', () => {
-        //         this.getIds();
-        //     });
-        // });
     }
 
     getIds(){
         const { data } = this.state;
         const idList = [data.id];
-        console.log(data.id);
         fetch(`http://localhost:3333/api/1.0.0/user/${ data.id }/friends`, {
             method: 'GET',
             headers: {
                 'X-Authorization': data.token
             }
         })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 403){
+                return Promise.reject(new Error(`Can only view the friends of yourself or your friends. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            }
+            return response.json()
+        })
         .then((responseJson) => {
             for (let i = 0; i < responseJson.length; i+=1){
                 idList.push(responseJson[i].user_id);
@@ -68,7 +72,7 @@ class FeedScreen extends Component {
             this.getPosts();
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         });
     }
 
@@ -83,7 +87,21 @@ class FeedScreen extends Component {
                     'X-Authorization': data.token
                 }
             })
-            .then((response) => response.json())
+            .then((response) => {
+                if (response.status === 401){
+                    return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                }
+                if (response.status === 403){
+                    return Promise.reject(new Error(`Can only view the posts of yourself or your friends. Status: ${  response.status}`));
+                }
+                if (response.status === 404){
+                    return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                }
+                if (response.status === 500){
+                    return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                }
+                return response.json()
+            })
             .then((responseJson) => {
                 if (responseJson.length > 0){
                     for (let j=0;j<responseJson.length;j+=1){
@@ -95,7 +113,7 @@ class FeedScreen extends Component {
                 }
             })
             .catch((error) => {
-                console.log(error);
+                displayAlert.displayAlert(error);
             });
         }
     }
@@ -113,13 +131,23 @@ class FeedScreen extends Component {
             })
         })
         .then((response) => {
-            if (response.status === 201){
-                displayAlert.displayAlert('Post uploaded.');
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
             }
-            else {
-                displayAlert.displayAlert(`${ response.statusText } ${ response.status }`)
+            if (response.status === 403){
+                return Promise.reject(new Error(`Can only view the friends of yourself or your friends. Status: ${  response.status}`));
             }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            }            
             this.getPosts();
+            return displayAlert.displayAlert('Post uploaded.');
+        })
+        .catch((error) => {
+            displayAlert.displayAlert(error);
         })
     }
 
@@ -132,17 +160,24 @@ class FeedScreen extends Component {
             }
         })
         .then((response) => {
-            if (response.status === 200){
-                displayAlert.displayAlert('Post deleted.');
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
             }
-            else {
-                displayAlert.displayAlert('You can only delete your own post.');
+            if (response.status === 403){
+                return Promise.reject(new Error(`Can only delete your own posts. Status: ${  response.status}`));
             }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
             this.getPosts();
             this.setState({viewPostModalVisible: false});
+            return displayAlert.displayAlert('Post deleted.');
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         })
     }
 
@@ -157,17 +192,27 @@ class FeedScreen extends Component {
             body: JSON.stringify({text: editText})
         })
         .then((response) => {
-            if (response.status === 200){
-                displayAlert.displayAlert('Post updated.');
+            if (response.status === 400){
+                return Promise.reject(new Error(`Bad request. Status: ${  response.status}`));
             }
-            else {
-                displayAlert.displayAlert(response.statusText);
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
             }
+            if (response.status === 403){
+                return Promise.reject(new Error(`Can only update your own posts. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
             this.getPosts();
             this.setState({viewPostModalVisible: false})
+            return displayAlert.displayAlert('Post updated.');
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         });
     }
 
@@ -180,19 +225,26 @@ class FeedScreen extends Component {
             }
         })
         .then((response) => {
-            if (response.status === 200){
-                displayAlert.displayAlert('Post liked');
+            if (response.status === 400){
+                return Promise.reject(new Error(`Post already liked. Status: ${  response.status}`));
             }
-            else if (response.status === 403) {
-                displayAlert.displayAlert('Cannot like your own posts.');
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
             }
-            else if (response.status === 400) {
-                displayAlert.displayAlert('Cannot like posts more than once or cannot unlike a post that has not been liked.')
+            if (response.status === 403){
+                return Promise.reject(new Error(`Can only like your friends posts. Status: ${  response.status}`));
             }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
             this.getPosts();
+            return displayAlert.displayAlert('Post liked');
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         })
     }
 
@@ -205,16 +257,23 @@ class FeedScreen extends Component {
             }
         })
         .then((response) => {
-            if (response.status === 200){
-                displayAlert.displayAlert('Post unliked');
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
             }
-            else {
-                displayAlert.displayAlert(response.statusText);
+            if (response.status === 403){
+                return Promise.reject(new Error(`You have not liked this post. Status: ${  response.status}`));
             }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            } 
             this.getPosts();
+            return displayAlert.displayAlert('Post unliked');
         })
         .catch((error) => {
-            console.log(error);
+            displayAlert.displayAlert(error);
         })
     }
 
@@ -238,8 +297,7 @@ class FeedScreen extends Component {
         const { data, currentPost, editVisible, editText } = this.state;
         if(Object.keys(currentPost).length > 0){
             return (
-                <View>
-                    {/* <Text>{currentPost.post_id}</Text> */}
+                <View style={styles.singlePostView}>
                     <Text>{currentPost.author.first_name} {currentPost.author.last_name}</Text>
                     <Text><Moment data={currentPost.timestamp} format="LLLL"/></Text>
                     <Text>{currentPost.text}</Text>
@@ -251,9 +309,9 @@ class FeedScreen extends Component {
                         </View>}
                     {!editVisible && (currentPost.author.user_id === data.id) && <Button title='Edit' onPress={() => this.setState({editVisible: true})}/>}
                     {!editVisible && (currentPost.author.user_id === data.id) && <Button title='Delete' onPress={() => this.deletePost(currentPost.post_id)}/>}
+                    {!editVisible && (currentPost.author.user_id !== data.id) && <Button title='Like' onPress={() => this.likePost(currentPost.author.user_id,currentPost.post_id)}/>}
+                    {!editVisible && (currentPost.author.user_id !== data.id) && <Button title='Unlike' onPress={() => this.deleteLike(currentPost.author.user_id,currentPost.post_id)}/>}
                     <Button title='Cancel' onPress={() => {this.setState({viewPostModalVisible: false, editVisible: false, editText: ''})}}/>
-                    {!editVisible && <Button title='Like' onPress={() => this.likePost(currentPost.author.user_id,currentPost.post_id)}/>}
-                    {!editVisible && <Button title='Unlike' onPress={() => this.deleteLike(currentPost.author.user_id,currentPost.post_id)}/>}
                 </View>
             )
         }
@@ -268,16 +326,18 @@ class FeedScreen extends Component {
                     transparent
                     visible={uploadModalVisible} 
                     onRequestClose={() => {
-                        // displayAlert.displayAlert('')
                         this.setState({uploadModalVisible: !uploadModalVisible});
                     }}
                 >
-                    <View>
-                        <TextInput placeholder='Enter text...' onChangeText={(newPostText) => this.setState({postText: newPostText})} value={postText}/>
-                        <Button title='Post' onPress={() => {
-                            this.uploadPost();
-                            this.setState({uploadModalVisible: false, postText: ''})
-                        }}/>
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <TextInput placeholder='Enter text...' onChangeText={(newPostText) => this.setState({postText: newPostText})} value={postText}/>
+                            <Button title='Post' onPress={() => {
+                                this.uploadPost();
+                                this.setState({uploadModalVisible: false, postText: ''})
+                            }}/>
+                            <Button title='Cancel' onPress={() => this.setState({uploadModalVisible: false})}/>
+                        </View>
                     </View>
                 </Modal>
                 <View>
@@ -291,8 +351,10 @@ class FeedScreen extends Component {
                         this.setState({viewPostModalVisible: !viewPostModalVisible});
                     }}
                 >
-                    <View>
-                        {this.viewSinglePost()}
+                    <View style={viewPostModalVisible ? styles.centeredViewDark : styles.centeredView}>
+                        <View style={styles.modalView}>
+                            {this.viewSinglePost()}
+                        </View>
                     </View>
                 </Modal>
             </View>
@@ -306,5 +368,33 @@ FeedScreen.propTypes = {
         addListener: PropTypes.func.isRequired
     }).isRequired
 }
+
+const styles = StyleSheet.create({
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    centeredViewDark: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modalView: {
+        backgroundColor: 'white',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        borderRadius: 5,
+        padding: 20
+    }
+})
 
 export default FeedScreen;

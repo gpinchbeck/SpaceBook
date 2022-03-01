@@ -32,18 +32,34 @@ class SettingsScreen extends Component {
         });
     }
 
-    async getUserData() {
+    getUserData(){
         const { data } = this.state;
-        const response = await fetch(`http://localhost:3333/api/1.0.0/user/${ data.id }`, {
-            method: 'get',
+        fetch(`http://localhost:3333/api/1.0.0/user/${ data.id }`, {
+            method: 'GET',
             headers: {
-                'X-Authorization': data.token,
-            },
-        });
-        const result = await response.json();
-        this.setState({
-            userData: result,
-        });
+                'X-Authorization': data.token
+            }
+        })
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            }
+            return response.json();
+        })
+        .then((responseJson) => {
+            this.setState({
+                userData: responseJson,
+            });
+        })
+        .catch((error) => {
+            displayAlert.displayAlert(error);
+        })
     }
 
     updateDetails(){
@@ -73,15 +89,25 @@ class SettingsScreen extends Component {
                 body: JSON.stringify(toSend)
             })
             .then((response) => {
-                if (response.status === 200){
-                    displayAlert.displayAlert('Details updated');
+                if (response.status === 400){
+                    return Promise.reject(new Error(`Bad request. Status: ${  response.status}`));
                 }
-                else {
-                    displayAlert.displayAlert(response.statusText);
+                if (response.status === 401){
+                    return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
                 }
+                if (response.status === 403){
+                    return Promise.reject(new Error(`Forbidden. Status: ${  response.status}`));
+                }
+                if (response.status === 404){
+                    return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                }
+                if (response.status === 500){
+                    return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                } 
+                return displayAlert.displayAlert('Details updated');
             })
             .catch((error) => {
-                console.log(error);
+                displayAlert.displayAlert(error);
             });
         }
         else {
