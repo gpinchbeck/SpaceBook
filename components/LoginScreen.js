@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, TextInput, View } from 'react-native';
+import { Button, Text, TextInput, View, StyleSheet } from 'react-native';
 import { PropTypes } from 'prop-types';
 
 import DisplayAlert from './DisplayAlert';
@@ -51,11 +51,9 @@ class LoginScreen extends Component {
             })
             .then((response) => {
                 if (response.status === 400){
-                    displayAlert.displayAlert('Incorrect email or password.');
                     return Promise.reject(new Error(`Incorrect email or password. Status: ${  response.status}`));
                 }
                 if (response.status === 500){
-                    displayAlert.displayAlert('Server error.');
                     return Promise.reject(new Error(`Server error. Status: ${  response.status}`));
                 }
                 return response.json();
@@ -76,11 +74,20 @@ class LoginScreen extends Component {
         const { navigation } = this.props;
         const { email, password } = this.state;
         return(
-            <View>
-                <TextInput placeholder='Enter email...' onChangeText={(newEmail) => this.setState({email: newEmail})} value={email}/>
-                <TextInput placeholder='Enter password...' onChangeText={(newPass) => this.setState({password: newPass})} value={password}/>
-                <Button title='Login' onPress={() => this.login(navigation)}/>
-                <Button title='Sign Up' onPress={() => navigation.navigate("SignUp")}/>
+            <View style={styles.cont}>
+                <View style={styles.centeredView}>
+                    <Text style={styles.textView}>Spacebook.</Text>
+                    <TextInput style={styles.textInputView} placeholder='Enter email...' onChangeText={(newEmail) => this.setState({email: newEmail})} value={email}/>
+                    <TextInput style={styles.textInputView} placeholder='Enter password...' onChangeText={(newPass) => this.setState({password: newPass})} value={password}/>
+                    <View style={styles.buttonOverview}>
+                        <View style={styles.buttonView}> 
+                            <Button title='Login' onPress={() => this.login(navigation)}/>
+                        </View>
+                        <View style={styles.buttonView}>
+                            <Button title='Sign Up' onPress={() => navigation.navigate("SignUp")}/>
+                        </View>
+                    </View>
+                </View>
             </View>
         )
     }
@@ -92,5 +99,41 @@ LoginScreen.propTypes = {
         addListener: PropTypes.func.isRequired
     }).isRequired
 }
+
+const styles = StyleSheet.create({
+    cont: {
+        flex: 1,
+        backgroundColor: '#dedede'
+    },
+    centeredView: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    textInputView: {
+        height: 50,
+        backgroundColor: 'white',
+        borderRadius: 5,
+        padding: 10,
+        marginLeft: 40,
+        marginRight: 40,
+        marginBottom: 20,
+        alignSelf: 'stretch',
+    },
+    buttonOverview: {
+        flexDirection: 'row',
+        width: 300,
+        justifyContent: 'space-evenly'
+    },
+    buttonView: {
+        width: 100
+    },
+    textView: {
+        fontSize: 50,
+        fontFamily: 'DejaVu Sans Mono, monospace',
+        fontWeight: 'bold',
+        marginTop: 100,
+        marginBottom: 100
+    }
+})
 
 export default LoginScreen;

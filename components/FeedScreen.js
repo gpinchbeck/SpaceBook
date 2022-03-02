@@ -241,6 +241,7 @@ class FeedScreen extends Component {
                 return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
             } 
             this.getPosts();
+            this.setState({viewPostModalVisible: false});
             return displayAlert.displayAlert('Post liked');
         })
         .catch((error) => {
@@ -270,6 +271,7 @@ class FeedScreen extends Component {
                 return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
             } 
             this.getPosts();
+            this.setState({viewPostModalVisible: false});
             return displayAlert.displayAlert('Post unliked');
         })
         .catch((error) => {
@@ -282,13 +284,14 @@ class FeedScreen extends Component {
         return (
             <FlatList extraData={this.state} data={posts}
                 renderItem={({item}) => (
-                    <Pressable onPress={() => {this.setState({viewPostModalVisible: true, currentPost: item})}}>
+                    <Pressable style={styles.listView} onPress={() => {this.setState({viewPostModalVisible: true, currentPost: item})}}>
                         <Text>{item.author.first_name} {item.author.last_name}</Text>
                         <Text><Moment date={item.timestamp} format="LLLL"/></Text>
                         <Text>{item.text}</Text>
-                        <Text>Likes: {item.numLikes}</Text>
+                        <Text style={styles.likeView}>Likes: {item.numLikes}</Text>
                     </Pressable>
                 )}
+                keyExtractor={(item, index) => index.toString()}
             />
         )
     }
@@ -301,7 +304,7 @@ class FeedScreen extends Component {
                     <Text>{currentPost.author.first_name} {currentPost.author.last_name}</Text>
                     <Text><Moment data={currentPost.timestamp} format="LLLL"/></Text>
                     <Text>{currentPost.text}</Text>
-                    <Text>Likes: {currentPost.numLikes}</Text>
+                    <Text style={styles.likeView}>Likes: {currentPost.numLikes}</Text>
                     {editVisible && 
                         <View>
                             <TextInput placeholder='Enter text' onChangeText={(newEditText) => this.setState({editText: newEditText})} value={editText}/>
@@ -319,9 +322,10 @@ class FeedScreen extends Component {
     }
 
     render(){
+        const { navigation } = this.props;
         const { uploadModalVisible, viewPostModalVisible, postText } = this.state;
         return (
-            <View>
+            <View style={styles.feedView}>
                 <Modal animationType='none' 
                     transparent
                     visible={uploadModalVisible} 
@@ -329,21 +333,22 @@ class FeedScreen extends Component {
                         this.setState({uploadModalVisible: !uploadModalVisible});
                     }}
                 >
-                    <View style={styles.centeredView}>
+                    <View style={styles.centeredViewDark}>
                         <View style={styles.modalView}>
                             <TextInput placeholder='Enter text...' onChangeText={(newPostText) => this.setState({postText: newPostText})} value={postText}/>
                             <Button title='Post' onPress={() => {
                                 this.uploadPost();
                                 this.setState({uploadModalVisible: false, postText: ''})
                             }}/>
-                            <Button title='Cancel' onPress={() => this.setState({uploadModalVisible: false})}/>
+                            <Button title='Save as draft' onPress={() => {
+                                asyncStorage.saveDraft(postText);
+                                this.setState({uploadModalVisible: false, postText: ''})
+                                displayAlert.displayAlert('Post saved as draft.');
+                            }}/>
+                            <Button title='Cancel' onPress={() => this.setState({uploadModalVisible: false, postText: ''})}/>
                         </View>
                     </View>
                 </Modal>
-                <View>
-                    {this.viewPost()}
-                    <Button title='Add post' onPress={() => this.setState({uploadModalVisible: true})}/>
-                </View>
                 <Modal animationType='none'
                     transparent
                     visible={viewPostModalVisible}
@@ -351,12 +356,21 @@ class FeedScreen extends Component {
                         this.setState({viewPostModalVisible: !viewPostModalVisible});
                     }}
                 >
-                    <View style={viewPostModalVisible ? styles.centeredViewDark : styles.centeredView}>
+                    <View style={styles.centeredViewDark}>
                         <View style={styles.modalView}>
                             {this.viewSinglePost()}
                         </View>
                     </View>
                 </Modal>
+                <View style={{flex: 1}}>
+                    <View style={styles.listView}>
+                        {this.viewPost()}
+                    </View>
+                    <View>
+                        <Button title='Add post' onPress={() => this.setState({uploadModalVisible: true})}/>
+                        <Button title='Drafts' onPress={() => navigation.navigate('Drafts')}/>
+                    </View>
+                </View>
             </View>
         )
     }
@@ -370,10 +384,19 @@ FeedScreen.propTypes = {
 }
 
 const styles = StyleSheet.create({
-    centeredView: {
+    feedView: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
+        padding: 20
+    },
+    listView: {
+        flex: 1,
+        borderBottomWidth: 1,
+        borderColor: 'gray',
+        marginTop: 10
+    },
+    likeView: {
+        alignSelf: 'flex-end',
+        marginBottom: 2
     },
     centeredViewDark: {
         flex: 1,

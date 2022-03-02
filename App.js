@@ -9,6 +9,7 @@ import SettingsScreen from './components/SettingsScreen';
 import UploadPicture from './components/UploadPicture';
 import FindFriendsScreen from './components/FindFriendsScreen';
 import FriendRequestScreen from './components/FriendRequestScreen';
+import DraftsScreen from './components/DraftsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +25,7 @@ class App extends Component {
           <Stack.Screen name='Upload' component={UploadPicture}/>
           <Stack.Screen name='FindFriends' component={FindFriendsScreen}/>
           <Stack.Screen name='FriendRequests' component={FriendRequestScreen}/>
+          <Stack.Screen name='Drafts' component={DraftsScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     )
