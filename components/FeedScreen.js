@@ -272,7 +272,7 @@ class FeedScreen extends Component {
             } 
             this.getPosts();
             this.setState({viewPostModalVisible: false});
-            return displayAlert.displayAlert('Post unliked');
+            return displayAlert.displayAlert(`Post unliked, ${postId}`);
         })
         .catch((error) => {
             displayAlert.displayAlert(error);
