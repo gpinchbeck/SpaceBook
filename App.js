@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
-import HomeScreen from './components/HomeScreen';
+import TabNav from './components/TabNav';
 import SettingsScreen from './components/SettingsScreen';
 import UploadPicture from './components/UploadPicture';
 import FindFriendsScreen from './components/FindFriendsScreen';
@@ -15,20 +15,19 @@ const Stack = createNativeStackNavigator();
 
 class App extends Component {
   render(){
-    return(
+    return (
       <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Login" component={LoginScreen}/>
-          <Stack.Screen name="SignUp" component={SignUpScreen}/>
-          <Stack.Screen options={{headerShown: false}} name="Home" component={HomeScreen}/>
-          <Stack.Screen name='Settings' component={SettingsScreen}/>
-          <Stack.Screen name='Upload' component={UploadPicture}/>
-          <Stack.Screen name='FindFriends' component={FindFriendsScreen}/>
-          <Stack.Screen name='FriendRequests' component={FriendRequestScreen}/>
-          <Stack.Screen name='Drafts' component={DraftsScreen}/>
-        </Stack.Navigator>
+          <Stack.Navigator initialRouteName='Login'>
+              <Stack.Screen options={{headerShown: false}} name='Login' component={LoginScreen}/>
+              <Stack.Screen options={{title: 'Create an account', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name='Signup' component={SignUpScreen}/>
+              <Stack.Screen options={{headerShown: false}} name="TabNav" component={TabNav}/>
+              <Stack.Screen options={{title: 'Account Settings', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name='Settings' component={SettingsScreen}/>
+              <Stack.Screen options={{title: 'Update Picture', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name="Upload" component={UploadPicture}/>
+              <Stack.Screen options={{title: 'Find Friends', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name='FindFriends' component={FindFriendsScreen}/>
+              <Stack.Screen options={{title: 'Friend Requests', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name='FriendRequests' component={FriendRequestScreen}/>
+          </Stack.Navigator>
       </NavigationContainer>
-    )
+  )
   }
 }
 
