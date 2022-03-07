@@ -18,6 +18,6 @@
     "react/prefer-stateless-function": [0, { "ignorePureComponents": true }],
     "react/no-unstable-nested-components": [ "off" ,{ "allowAsProps": true }],
     "no-use-before-define": ["error", { "functions": true, "classes": true, "variables": false }],
-    "class-methods-use-this": [1, { "exceptMethods": ["acceptRequest", "declineRequest"] }]
+    "class-methods-use-this": [1, { "exceptMethods": ["acceptRequest", "declineRequest", "viewPost"] }]
   }
 }

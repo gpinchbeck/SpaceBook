@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Box, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack, Image, FlatList, Circle, ZStack, Divider, Fab, Modal, FormControl, Input } from 'native-base';
+import { Box, NativeBaseProvider, Text, VStack, Button, Icon, Pressable, HStack, Image, FlatList, Divider, Fab, Modal, FormControl, Input } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 // import { Button, FlatList, Text, View, Modal, TextInput, Pressable, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
@@ -23,9 +23,9 @@ class FeedScreen extends Component {
             uploadModalVisible: false,
             viewPostModalVisible: false,
             postText: '',
-            currentPost: {},
+            currentPost: [],
             editText: '',
-            editVisible: false
+            editVisible: false,
         }
     }
 
@@ -171,7 +171,7 @@ class FeedScreen extends Component {
             if (response.status === 500){
                 return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
             }            
-            this.getPosts();
+            this.getPosts(); 
             return displayAlert.displayAlert('Post uploaded.');
         })
         .catch((error) => {
@@ -307,118 +307,62 @@ class FeedScreen extends Component {
         })
     }
 
-    viewPost(){
-        const { posts } = this.state;
+    viewPost(item){
         return (
-            <FlatList extraData={this.state} data={posts}
-                renderItem={({item}) => (
-                    <Pressable style={styles.listView} onPress={() => {this.setState({viewPostModalVisible: true, currentPost: item})}}>
-                        <Text>{item.author.first_name} {item.author.last_name}</Text>
-                        <Text><Moment date={item.timestamp} format="LLLL"/></Text>
-                        <Text>{item.text}</Text>
-                        <Text style={styles.likeView}>Likes: {item.numLikes}</Text>
-                    </Pressable>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-            />
-        )
-    }
-
-    post(){
-        const { currentPost } = this.state;
-        if (Object.keys(currentPost).length > 0){
-            return (
-                <HStack justifyContent="space-between">
-                    <Box>
-                        <HStack space={5}>
-                            <Image source={{uri: item[1]}} size={50} borderRadius="100" alt="Profile Picture"/>
-                            <VStack>
-                                <Text  bold>{item[0].author.first_name} {item[0].author.last_name}</Text>
-                                <Text>{item[0].text}</Text>
-                            </VStack>
-                        </HStack>
-                    </Box>
-                        <VStack>
-                            <Text><Moment date={item[0].timestamp} format="D MMM"/></Text>
-                            <Box alignSelf="flex-start">
-                                <Text>Likes: {item[0].numLikes}</Text>
-                            </Box>
-                        </VStack>
+        <HStack justifyContent="space-between">
+            <Box>
+                <HStack space={5}>
+                    <Image source={{uri: item[1]}} size={50} borderRadius="100" alt="Profile Picture"/>
+                    <VStack>
+                        <Text  bold>{item[0].author.first_name} {item[0].author.last_name}</Text>
+                        <Text>{item[0].text}</Text>
+                    </VStack>
                 </HStack>
-            )
-        }
-    }
-
-    viewSinglePost(){
-        const { data, currentPost, editVisible, editText } = this.state;
-        if(Object.keys(currentPost).length > 0){
-            return (
-                <View style={styles.singlePostView}>
-                    <Text>{currentPost.author.first_name} {currentPost.author.last_name}</Text>
-                    <Text><Moment data={currentPost.timestamp} format="LLLL"/></Text>
-                    <Text>{currentPost.text}</Text>
-                    <Text style={styles.likeView}>Likes: {currentPost.numLikes}</Text>
-                    {editVisible && 
-                        <View>
-                            <TextInput placeholder='Enter text' onChangeText={(newEditText) => this.setState({editText: newEditText})} value={editText}/>
-                            <Button title='Update' onPress={() => this.updatePost(currentPost.post_id)}/>
-                        </View>}
-                    {!editVisible && (currentPost.author.user_id === data.id) && <Button title='Edit' onPress={() => this.setState({editVisible: true})}/>}
-                    {!editVisible && (currentPost.author.user_id === data.id) && <Button title='Delete' onPress={() => this.deletePost(currentPost.post_id)}/>}
-                    {!editVisible && (currentPost.author.user_id !== data.id) && <Button title='Like' onPress={() => this.likePost(currentPost.author.user_id,currentPost.post_id)}/>}
-                    {!editVisible && (currentPost.author.user_id !== data.id) && <Button title='Unlike' onPress={() => this.deleteLike(currentPost.author.user_id,currentPost.post_id)}/>}
-                    <Button title='Cancel' onPress={() => {this.setState({viewPostModalVisible: false, editVisible: false, editText: ''})}}/>
-                </View>
-            )
-        }
-        return null;
+            </Box>
+            <VStack>
+                <Text><Moment date={item[0].timestamp} format="D MMM"/></Text>
+                <Box alignSelf="flex-start">
+                    <Text>Likes: {item[0].numLikes}</Text>
+                </Box>
+            </VStack>
+        </HStack>
+        );
     }
 
     render(){
         const { navigation } = this.props;
-        const { uploadModalVisible, viewPostModalVisible, postText, posts } = this.state;
+        const { uploadModalVisible, viewPostModalVisible, posts, currentPost, editVisible, data, editText, postText } = this.state;
         return (
             <NativeBaseProvider>
                 <Box flex={1} boxSize="100%">
                     <FlatList extraData={this.state} data={posts}
                         renderItem={({item}) => (
                             <Pressable onPress={() => {this.setState({viewPostModalVisible: true, currentPost: item})}} pl="5" pr="5" pb="5" pt="5">
-                                <HStack justifyContent="space-between">
-                                    <Box>
-                                        <HStack space={5}>
-                                            <Image source={{uri: item[1]}} size={50} borderRadius="100" alt="Profile Picture"/>
-                                            <VStack>
-                                                <Text  bold>{item[0].author.first_name} {item[0].author.last_name}</Text>
-                                                <Text>{item[0].text}</Text>
-                                            </VStack>
-                                        </HStack>
-                                    </Box>
-                                    <VStack>
-                                        <Text><Moment date={item[0].timestamp} format="D MMM"/></Text>
-                                        <Box alignSelf="flex-start">
-                                            <Text>Likes: {item[0].numLikes}</Text>
-                                        </Box>
-                                    </VStack>
-                                </HStack>
+                                {this.viewPost(item)}
                                 <Divider mt={10} bg="muted.400"/>
                             </Pressable>
                         )}
                         keyExtractor={(item, index) => index.toString()}
                     />
-                    <Fab onPress={() => this.setState({uploadModalVisible: true})} bg="darkBlue.700" icon={<Icon as={<MaterialIcons style={{color: "white", fontSize: 30}} name="post-add"/>}/>} size={50} justifySelf="center" alignSelf="center" position="absolute" bottom="25"/>
+                    <Fab onPress={() => this.setState({uploadModalVisible: true})} bg="darkBlue.700" icon={<Icon as={<MaterialIcons style={{color: "white", fontSize: 30}} name="post-add"/>}/>} size={50} placement="bottom-right"/>
+                    <Fab onPress={() => navigation.navigate('Drafts')} bg="darkBlue.700" label={<Text color="white" fontSize="sm">Drafts</Text>} size={50} placement='bottom-left'/>
                     <Modal isOpen={uploadModalVisible} onClose={() => this.setState({uploadModalVisible: false})}>
                         <Modal.Content maxWidth="400px">
                             <Modal.CloseButton/>
                             <Modal.Header>Add Post</Modal.Header>
                             <Modal.Body>
                                 <FormControl>
-                                    <Input borderColor="coolGray.800" placeholder="Enter text"/>
+                                    <Input borderColor="coolGray.800" placeholder="Enter text" onChangeText={value => this.setState({postText: value})} value={postText}/>
                                 </FormControl>
                             </Modal.Body>
-                            <Modal.Footer>
+                            <Modal.Footer justifyContent="space-evenly" >
                                 <Button.Group space={2}>
                                     <Button bg="darkBlue.700" onPress={() => this.setState({uploadModalVisible: false, postText: ''})}>Cancel</Button>
-                                    <Button bg="darkBlue.700" onPress={() => console.log("Draft")}>Save as draft</Button>
+                                    <Button bg="darkBlue.700" onPress={() => {
+                                        asyncStorage.saveDraft(postText);
+                                        this.setState({uploadModalVisible: false, postText: ''})
+                                        displayAlert.displayAlert('Post saved as draft.');
+                                    }}>Save as draft</Button>
                                     <Button bg="darkBlue.700" onPress={() => {
                                         this.uploadPost();
                                         this.setState({uploadModalVisible: false, postText: ''});
@@ -427,75 +371,51 @@ class FeedScreen extends Component {
                             </Modal.Footer>
                         </Modal.Content>
                     </Modal>
-                    {/* <Modal isOpen={viewPostModalVisible} onClose={() => this.setState({viewPostModalVisible: false})}>
+                    {currentPost.length > 0 && <Modal isOpen={viewPostModalVisible} onClose={() => this.setState({viewPostModalVisible: false})}>
                         <Modal.Content maxWidth="400px">
                             <Modal.CloseButton/>
-                            <Modal.Body>
+                            <Modal.Header>
                                 <Text>Post</Text>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <FormControl>
+                                    {this.viewPost(currentPost)}
+                                </FormControl>
                             </Modal.Body>
-                            <Modal.Footer>
-                                <Button.Group space={2}>
+                            <Modal.Footer justifyContent="space-evenly" >
+                                { Object.keys(currentPost[0]).length > 0 && <HStack space={2}>
                                     <Button bg="darkBlue.700" onPress={() => this.setState({viewPostModalVisible: false})}>Cancel</Button>
-                                    <Button>Edit</Button>
-                                    
-                                    <Button>Like</Button>
-                                    <Button>Dislike</Button>
+                                    {!editVisible && (currentPost[0].author.user_id === data.id) && <Button onPress={() => this.setState({editVisible: true, viewPostModalVisible: false})}>Edit</Button>}
+                                    {!editVisible && (currentPost[0].author.user_id === data.id) && <Button onPress={() => this.deletePost(currentPost[0].post_id)}>Delete</Button>}
+                                    {!editVisible && (currentPost[0].author.user_id !== data.id) && <Button onPress={() => this.likePost(currentPost[0].author.user_id,currentPost[0].post_id)}>Like</Button>}
+                                    {!editVisible && (currentPost[0].author.user_id !== data.id) && <Button onPress={() => this.deleteLike(currentPost[0].author.user_id,currentPost[0].post_id)}>Unlike</Button>}
+                                </HStack>}
+                            </Modal.Footer>
+                        </Modal.Content>
+                    </Modal>}
+                    {currentPost.length > 0 && <Modal isOpen={editVisible} onClose={() => this.setState({editVisible: false})}>
+                        <Modal.Content maxWidth="400px">
+                            <Modal.CloseButton/>
+                            <Modal.Header>Edit Post</Modal.Header>
+                            <Modal.Body>
+                                <FormControl>
+                                    <Input borderColor="coolGray.800" placeholder={currentPost[0].text} onChangeText={value => this.setState({editText: value})} value={editText}/>
+                                </FormControl>
+                            </Modal.Body>
+                            <Modal.Footer justifyContent="space-evenly" >
+                                <Button.Group space={2}>
+                                    <Button bg="darkBlue.700" onPress={() => this.setState({editVisible: false})}>Cancel</Button>
+                                    <Button bg="darkBlue.700" onPress={() => {
+                                        this.updatePost(currentPost[0].post_id);
+                                        this.setState({editVisible: false, postText: ''});
+                                        }}>Update</Button>
                                 </Button.Group>
                             </Modal.Footer>
                         </Modal.Content>
-                    </Modal> */}
+                    </Modal>}
                 </Box>
             </NativeBaseProvider>
         );
-        // return (
-        //     <View style={styles.feedView}>
-        //         <Modal animationType='none' 
-        //             transparent
-        //             visible={uploadModalVisible} 
-        //             onRequestClose={() => {
-        //                 this.setState({uploadModalVisible: !uploadModalVisible});
-        //             }}
-        //         >
-        //             <View style={styles.centeredViewDark}>
-        //                 <View style={styles.modalView}>
-        //                     <TextInput placeholder='Enter text...' onChangeText={(newPostText) => this.setState({postText: newPostText})} value={postText}/>
-        //                     <Button title='Post' onPress={() => {
-        //                         this.uploadPost();
-        //                         this.setState({uploadModalVisible: false, postText: ''})
-        //                     }}/>
-        //                     <Button title='Save as draft' onPress={() => {
-        //                         asyncStorage.saveDraft(postText);
-        //                         this.setState({uploadModalVisible: false, postText: ''})
-        //                         displayAlert.displayAlert('Post saved as draft.');
-        //                     }}/>
-        //                     <Button title='Cancel' onPress={() => this.setState({uploadModalVisible: false, postText: ''})}/>
-        //                 </View>
-        //             </View>
-        //         </Modal>
-        //         <Modal animationType='none'
-        //             transparent
-        //             visible={viewPostModalVisible}
-        //             onRequestClose={() => {
-        //                 this.setState({viewPostModalVisible: !viewPostModalVisible});
-        //             }}
-        //         >
-        //             <View style={styles.centeredViewDark}>
-        //                 <View style={styles.modalView}>
-        //                     {this.viewSinglePost()}
-        //                 </View>
-        //             </View>
-        //         </Modal>
-        //         <View style={{flex: 1}}>
-        //             <View style={styles.listView}>
-        //                 {this.viewPost()}
-        //             </View>
-        //             <View>
-        //                 <Button title='Add post' onPress={() => this.setState({uploadModalVisible: true})}/>
-        //                 <Button title='Drafts' onPress={() => navigation.navigate('Drafts')}/>
-        //             </View>
-        //         </View>
-        //     </View>
-        // )
     }
 }
 
