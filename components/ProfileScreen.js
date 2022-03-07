@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Box, Input, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack, Image, Divider } from 'native-base';
+import { Box, NativeBaseProvider, Text, VStack, Button, HStack, Image, Divider } from 'native-base';
 import PropTypes from 'prop-types';
 
 import DisplayAlert from './DisplayAlert';
@@ -130,7 +130,7 @@ class ProfileScreen extends Component {
                     <VStack flex={1}>
                         <Box pb="5">
                             <HStack space={5}>
-                                <Image source={{uri: img}} size={100} borderRadius={"100"} alt="Profile Picture"/>
+                                {img !== null &&<Image source={{uri: img}} size={100} borderRadius="100" alt="Profile Picture"/>}
                                 <VStack justifyContent="center" space={2}>
                                     <Text>{userData.first_name}</Text>
                                     <Text>{userData.last_name}</Text>

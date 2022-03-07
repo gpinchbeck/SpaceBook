@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Box, Input, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack, Image, FlatList, Circle, ZStack, Divider, Fab } from 'native-base';
+import { Box, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack, Image, FlatList, Circle, ZStack, Divider, Fab, Modal, FormControl, Input } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 // import { Button, FlatList, Text, View, Modal, TextInput, Pressable, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
@@ -24,7 +24,6 @@ class FeedScreen extends Component {
             viewPostModalVisible: false,
             postText: '',
             currentPost: {},
-            userDet: [],
             editText: '',
             editVisible: false
         }
@@ -110,8 +109,8 @@ class FeedScreen extends Component {
                     for (let j=0;j<responseJson.length;j+=1){
                         this.getProfileImage(idList[i])
                         .then((responseBlob) => {
-                            const data = URL.createObjectURL(responseBlob);
-                            postsList.push([responseJson[j], data])
+                            const responseUrl = URL.createObjectURL(responseBlob);
+                            postsList.push([responseJson[j], responseUrl])
                             this.setState({
                                 posts: postsList
                             });
@@ -325,6 +324,31 @@ class FeedScreen extends Component {
         )
     }
 
+    post(){
+        const { currentPost } = this.state;
+        if (Object.keys(currentPost).length > 0){
+            return (
+                <HStack justifyContent="space-between">
+                    <Box>
+                        <HStack space={5}>
+                            <Image source={{uri: item[1]}} size={50} borderRadius="100" alt="Profile Picture"/>
+                            <VStack>
+                                <Text  bold>{item[0].author.first_name} {item[0].author.last_name}</Text>
+                                <Text>{item[0].text}</Text>
+                            </VStack>
+                        </HStack>
+                    </Box>
+                        <VStack>
+                            <Text><Moment date={item[0].timestamp} format="D MMM"/></Text>
+                            <Box alignSelf="flex-start">
+                                <Text>Likes: {item[0].numLikes}</Text>
+                            </Box>
+                        </VStack>
+                </HStack>
+            )
+        }
+    }
+
     viewSinglePost(){
         const { data, currentPost, editVisible, editText } = this.state;
         if(Object.keys(currentPost).length > 0){
@@ -362,7 +386,7 @@ class FeedScreen extends Component {
                                 <HStack justifyContent="space-between">
                                     <Box>
                                         <HStack space={5}>
-                                            <Image source={{uri: item[1]}} size={50} borderRadius={"100"} alt="Profile Picture"/>
+                                            <Image source={{uri: item[1]}} size={50} borderRadius="100" alt="Profile Picture"/>
                                             <VStack>
                                                 <Text  bold>{item[0].author.first_name} {item[0].author.last_name}</Text>
                                                 <Text>{item[0].text}</Text>
@@ -382,6 +406,44 @@ class FeedScreen extends Component {
                         keyExtractor={(item, index) => index.toString()}
                     />
                     <Fab onPress={() => this.setState({uploadModalVisible: true})} bg="darkBlue.700" icon={<Icon as={<MaterialIcons style={{color: "white", fontSize: 30}} name="post-add"/>}/>} size={50} justifySelf="center" alignSelf="center" position="absolute" bottom="25"/>
+                    <Modal isOpen={uploadModalVisible} onClose={() => this.setState({uploadModalVisible: false})}>
+                        <Modal.Content maxWidth="400px">
+                            <Modal.CloseButton/>
+                            <Modal.Header>Add Post</Modal.Header>
+                            <Modal.Body>
+                                <FormControl>
+                                    <Input borderColor="coolGray.800" placeholder="Enter text"/>
+                                </FormControl>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button.Group space={2}>
+                                    <Button bg="darkBlue.700" onPress={() => this.setState({uploadModalVisible: false, postText: ''})}>Cancel</Button>
+                                    <Button bg="darkBlue.700" onPress={() => console.log("Draft")}>Save as draft</Button>
+                                    <Button bg="darkBlue.700" onPress={() => {
+                                        this.uploadPost();
+                                        this.setState({uploadModalVisible: false, postText: ''});
+                                        }}>Post</Button>
+                                </Button.Group>
+                            </Modal.Footer>
+                        </Modal.Content>
+                    </Modal>
+                    {/* <Modal isOpen={viewPostModalVisible} onClose={() => this.setState({viewPostModalVisible: false})}>
+                        <Modal.Content maxWidth="400px">
+                            <Modal.CloseButton/>
+                            <Modal.Body>
+                                <Text>Post</Text>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button.Group space={2}>
+                                    <Button bg="darkBlue.700" onPress={() => this.setState({viewPostModalVisible: false})}>Cancel</Button>
+                                    <Button>Edit</Button>
+                                    
+                                    <Button>Like</Button>
+                                    <Button>Dislike</Button>
+                                </Button.Group>
+                            </Modal.Footer>
+                        </Modal.Content>
+                    </Modal> */}
                 </Box>
             </NativeBaseProvider>
         );

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Icon, NativeBaseProvider } from 'native-base';
 
 import FeedScreen from './FeedScreen';
@@ -16,7 +16,7 @@ class HomeScreen extends Component {
                 <Tab.Navigator
                     initialRouteName='Feed'
                     screenOptions={({ route }) => ({
-                        tabBarIcon: ({focused, color, size}) => {
+                        tabBarIcon: ({focused, color}) => {
                             let iconName;
                             if (route.name === 'Profile'){
                                 iconName = focused ? 'person' : 'person';

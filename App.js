@@ -25,6 +25,7 @@ class App extends Component {
               <Stack.Screen options={{title: 'Update Picture', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name="Upload" component={UploadPicture}/>
               <Stack.Screen options={{title: 'Find Friends', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name='FindFriends' component={FindFriendsScreen}/>
               <Stack.Screen options={{title: 'Friend Requests', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name='FriendRequests' component={FriendRequestScreen}/>
+              <Stack.Screen options={{title: 'Drafts', headerStyle: {backgroundColor: "#002851"}, headerTintColor: '#fff', headerTitleAlign: 'center', headerTitleStyle: {fontWeight: 'bold'}}} name='Drafts' component={DraftsScreen}/>
           </Stack.Navigator>
       </NavigationContainer>
   )
