@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { Button, FlatList, Text, View, Modal, TextInput, Pressable, StyleSheet } from 'react-native';
+import { Box, Input, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack, Image, FlatList, Circle, ZStack, Divider, Fab } from 'native-base';
+import { MaterialIcons } from '@expo/vector-icons';
+// import { Button, FlatList, Text, View, Modal, TextInput, Pressable, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 import Moment from 'react-moment';
 
@@ -22,6 +24,7 @@ class FeedScreen extends Component {
             viewPostModalVisible: false,
             postText: '',
             currentPost: {},
+            userDet: [],
             editText: '',
             editVisible: false
         }
@@ -105,9 +108,13 @@ class FeedScreen extends Component {
             .then((responseJson) => {
                 if (responseJson.length > 0){
                     for (let j=0;j<responseJson.length;j+=1){
-                        postsList.push(responseJson[j])
-                        this.setState({
-                            posts: postsList
+                        this.getProfileImage(idList[i])
+                        .then((responseBlob) => {
+                            const data = URL.createObjectURL(responseBlob);
+                            postsList.push([responseJson[j], data])
+                            this.setState({
+                                posts: postsList
+                            });
                         });
                     }
                 }
@@ -116,6 +123,28 @@ class FeedScreen extends Component {
                 displayAlert.displayAlert(error);
             });
         }
+    }
+
+    getProfileImage(userId) {
+        const { data } = this.state;
+        return fetch(`http://localhost:3333/api/1.0.0/user/${  userId  }/photo`, {
+            method: 'GET',
+            headers: {
+                'X-Authorization': data.token
+            }
+        })
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            }
+            return response.blob();
+        })
     }
 
     uploadPost(){
@@ -323,56 +352,88 @@ class FeedScreen extends Component {
 
     render(){
         const { navigation } = this.props;
-        const { uploadModalVisible, viewPostModalVisible, postText } = this.state;
+        const { uploadModalVisible, viewPostModalVisible, postText, posts } = this.state;
         return (
-            <View style={styles.feedView}>
-                <Modal animationType='none' 
-                    transparent
-                    visible={uploadModalVisible} 
-                    onRequestClose={() => {
-                        this.setState({uploadModalVisible: !uploadModalVisible});
-                    }}
-                >
-                    <View style={styles.centeredViewDark}>
-                        <View style={styles.modalView}>
-                            <TextInput placeholder='Enter text...' onChangeText={(newPostText) => this.setState({postText: newPostText})} value={postText}/>
-                            <Button title='Post' onPress={() => {
-                                this.uploadPost();
-                                this.setState({uploadModalVisible: false, postText: ''})
-                            }}/>
-                            <Button title='Save as draft' onPress={() => {
-                                asyncStorage.saveDraft(postText);
-                                this.setState({uploadModalVisible: false, postText: ''})
-                                displayAlert.displayAlert('Post saved as draft.');
-                            }}/>
-                            <Button title='Cancel' onPress={() => this.setState({uploadModalVisible: false, postText: ''})}/>
-                        </View>
-                    </View>
-                </Modal>
-                <Modal animationType='none'
-                    transparent
-                    visible={viewPostModalVisible}
-                    onRequestClose={() => {
-                        this.setState({viewPostModalVisible: !viewPostModalVisible});
-                    }}
-                >
-                    <View style={styles.centeredViewDark}>
-                        <View style={styles.modalView}>
-                            {this.viewSinglePost()}
-                        </View>
-                    </View>
-                </Modal>
-                <View style={{flex: 1}}>
-                    <View style={styles.listView}>
-                        {this.viewPost()}
-                    </View>
-                    <View>
-                        <Button title='Add post' onPress={() => this.setState({uploadModalVisible: true})}/>
-                        <Button title='Drafts' onPress={() => navigation.navigate('Drafts')}/>
-                    </View>
-                </View>
-            </View>
-        )
+            <NativeBaseProvider>
+                <Box flex={1} boxSize="100%">
+                    <FlatList extraData={this.state} data={posts}
+                        renderItem={({item}) => (
+                            <Pressable onPress={() => {this.setState({viewPostModalVisible: true, currentPost: item})}} pl="5" pr="5" pb="5" pt="5">
+                                <HStack justifyContent="space-between">
+                                    <Box>
+                                        <HStack space={5}>
+                                            <Image source={{uri: item[1]}} size={50} borderRadius={"100"} alt="Profile Picture"/>
+                                            <VStack>
+                                                <Text  bold>{item[0].author.first_name} {item[0].author.last_name}</Text>
+                                                <Text>{item[0].text}</Text>
+                                            </VStack>
+                                        </HStack>
+                                    </Box>
+                                    <VStack>
+                                        <Text><Moment date={item[0].timestamp} format="D MMM"/></Text>
+                                        <Box alignSelf="flex-start">
+                                            <Text>Likes: {item[0].numLikes}</Text>
+                                        </Box>
+                                    </VStack>
+                                </HStack>
+                                <Divider mt={10} bg="muted.400"/>
+                            </Pressable>
+                        )}
+                        keyExtractor={(item, index) => index.toString()}
+                    />
+                    <Fab onPress={() => this.setState({uploadModalVisible: true})} bg="darkBlue.700" icon={<Icon as={<MaterialIcons style={{color: "white", fontSize: 30}} name="post-add"/>}/>} size={50} justifySelf="center" alignSelf="center" position="absolute" bottom="25"/>
+                </Box>
+            </NativeBaseProvider>
+        );
+        // return (
+        //     <View style={styles.feedView}>
+        //         <Modal animationType='none' 
+        //             transparent
+        //             visible={uploadModalVisible} 
+        //             onRequestClose={() => {
+        //                 this.setState({uploadModalVisible: !uploadModalVisible});
+        //             }}
+        //         >
+        //             <View style={styles.centeredViewDark}>
+        //                 <View style={styles.modalView}>
+        //                     <TextInput placeholder='Enter text...' onChangeText={(newPostText) => this.setState({postText: newPostText})} value={postText}/>
+        //                     <Button title='Post' onPress={() => {
+        //                         this.uploadPost();
+        //                         this.setState({uploadModalVisible: false, postText: ''})
+        //                     }}/>
+        //                     <Button title='Save as draft' onPress={() => {
+        //                         asyncStorage.saveDraft(postText);
+        //                         this.setState({uploadModalVisible: false, postText: ''})
+        //                         displayAlert.displayAlert('Post saved as draft.');
+        //                     }}/>
+        //                     <Button title='Cancel' onPress={() => this.setState({uploadModalVisible: false, postText: ''})}/>
+        //                 </View>
+        //             </View>
+        //         </Modal>
+        //         <Modal animationType='none'
+        //             transparent
+        //             visible={viewPostModalVisible}
+        //             onRequestClose={() => {
+        //                 this.setState({viewPostModalVisible: !viewPostModalVisible});
+        //             }}
+        //         >
+        //             <View style={styles.centeredViewDark}>
+        //                 <View style={styles.modalView}>
+        //                     {this.viewSinglePost()}
+        //                 </View>
+        //             </View>
+        //         </Modal>
+        //         <View style={{flex: 1}}>
+        //             <View style={styles.listView}>
+        //                 {this.viewPost()}
+        //             </View>
+        //             <View>
+        //                 <Button title='Add post' onPress={() => this.setState({uploadModalVisible: true})}/>
+        //                 <Button title='Drafts' onPress={() => navigation.navigate('Drafts')}/>
+        //             </View>
+        //         </View>
+        //     </View>
+        // )
     }
 }
 
@@ -382,42 +443,5 @@ FeedScreen.propTypes = {
         addListener: PropTypes.func.isRequired
     }).isRequired
 }
-
-const styles = StyleSheet.create({
-    feedView: {
-        flex: 1,
-        padding: 20
-    },
-    listView: {
-        flex: 1,
-        borderBottomWidth: 1,
-        borderColor: 'gray',
-        marginTop: 10
-    },
-    likeView: {
-        alignSelf: 'flex-end',
-        marginBottom: 2
-    },
-    centeredViewDark: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)'
-    },
-    modalView: {
-        backgroundColor: 'white',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-        borderRadius: 5,
-        padding: 20
-    }
-})
 
 export default FeedScreen;

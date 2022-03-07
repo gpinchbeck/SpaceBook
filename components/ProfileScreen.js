@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Text, View, Image } from 'react-native';
+import { Box, Input, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack, Image, Divider } from 'native-base';
 import PropTypes from 'prop-types';
 
 import DisplayAlert from './DisplayAlert';
@@ -123,25 +123,36 @@ class ProfileScreen extends Component {
 
     render() {
         const { navigation } = this.props;
-        const { loginInfo, userData, img } = this.state;
+        const { userData, img } = this.state;
         return (
-            <View>
-                <Text>Profile</Text>
-                <Text>Login id: {loginInfo.id}</Text>
-                <Text>Login token: {loginInfo.token}</Text>
-                <View>
-                    <Image source={{uri: img}}
-                        style={{width:100, height:100, borderWidth: 1}} />
-                    <Text>{userData.first_name}</Text>
-                    <Text>{userData.last_name}</Text>
-                    <Text>{userData.email}</Text>
-                    <Text>{userData.friend_count}</Text>
-                </View>
-                <View>
-                    <Button title="Account Settings" onPress={() => navigation.navigate('Settings')} />
-                    <Button title="Logout" onPress={() => this.logout(navigation)} />
-                </View>
-            </View>
+            <NativeBaseProvider>
+                <Box flex={1} p="5">
+                    <VStack flex={1}>
+                        <Box pb="5">
+                            <HStack space={5}>
+                                <Image source={{uri: img}} size={100} borderRadius={"100"} alt="Profile Picture"/>
+                                <VStack justifyContent="center" space={2}>
+                                    <Text>{userData.first_name}</Text>
+                                    <Text>{userData.last_name}</Text>
+                                </VStack>
+                            </HStack>
+                        </Box>
+                        <Divider bg="muted.300"/>
+                        <Box justifyContent="center" h="50" alignItems="center">
+                            
+                            <Text>{userData.friend_count} Friends</Text>
+                            
+                        </Box>
+                        <Divider bg="muted.300"/>
+                    </VStack>
+                    <Box>
+                        <VStack space={5}>
+                            <Button h="50" bg="darkBlue.700" onPress={() => navigation.navigate('Settings')}>Account Settings</Button>
+                            <Button h="50" bg="darkBlue.700" onPress={() => this.logout(navigation)}>Logout</Button>
+                        </VStack>
+                    </Box>
+                </Box>
+            </NativeBaseProvider>
         );
     }
 }

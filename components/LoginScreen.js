@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Text, TextInput, View, StyleSheet } from 'react-native';
+import { Box, Input, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack } from 'native-base';
+import { MaterialIcons } from '@expo/vector-icons';
 import { PropTypes } from 'prop-types';
 
 import DisplayAlert from './DisplayAlert';
@@ -16,6 +17,7 @@ class LoginScreen extends Component {
         this.state={
             email: 'gp@gp.com',
             password: 'password',
+            visible: false
         }
     }
 
@@ -62,7 +64,7 @@ class LoginScreen extends Component {
                 displayAlert.displayAlert('Logged in.');
                 asyncStorage.storeData(json);
                 this.setState({email: '', password: ''});
-                nav.navigate('Home');
+                nav.navigate('TabNav');
             })
             .catch((error) => {
                 displayAlert.displayAlert(error);
@@ -72,24 +74,38 @@ class LoginScreen extends Component {
 
     render(){
         const { navigation } = this.props;
-        const { email, password } = this.state;
-        return(
-            <View style={styles.cont}>
-                <View style={styles.centeredView}>
-                    <Text style={styles.textView}>Spacebook.</Text>
-                    <TextInput style={styles.textInputView} placeholder='Enter email...' onChangeText={(newEmail) => this.setState({email: newEmail})} value={email}/>
-                    <TextInput style={styles.textInputView} placeholder='Enter password...' onChangeText={(newPass) => this.setState({password: newPass})} value={password}/>
-                    <View style={styles.buttonOverview}>
-                        <View style={styles.buttonView}> 
-                            <Button title='Login' onPress={() => this.login(navigation)}/>
-                        </View>
-                        <View style={styles.buttonView}>
-                            <Button title='Sign Up' onPress={() => navigation.navigate("SignUp")}/>
-                        </View>
-                    </View>
-                </View>
-            </View>
-        )
+        const { email, password, visible } = this.state;
+        const bgDark = "darkBlue.700";
+        const textColour = "white";
+        return (
+            <NativeBaseProvider>
+                <VStack flex={1} bg={bgDark} w="100%" h="100%">
+                    <Box alignItems="center" py="50" mt="100">
+                        <Text bold fontSize="3xl" color={textColour}>Spacebook.</Text>
+                    </Box>
+                    <Center>
+                        <Box mt="100">
+                            <VStack alignItems="center" space={2} w="100%">
+                                <Input InputRightElement={<Icon as={<MaterialIcons name="person"/>} 
+                                    size={5} mr="2" color={textColour}/>} placeholder="Email" placeholderTextColor={textColour} color={textColour}
+                                    onChangeText={(newEmail) => this.setState({email: newEmail})} value={email}
+                                />
+                                <Input isRequired type={visible ? "text" : "password"}
+                                    InputRightElement={<Pressable onPress={() => this.setState({visible: !visible})}><Icon as={<MaterialIcons 
+                                    name={visible ? "visibility" : "visibility-off"}/>} size={5} mr="2" 
+                                    color={textColour}/></Pressable>} placeholder="Password" placeholderTextColor={textColour} color={textColour}
+                                    onChangeText={(newPass) => this.setState({password: newPass})} value={password}
+                                />
+                                <HStack w="100%" justifyContent="space-between">
+                                    <Button colorScheme='blueGray' w="45%" onPress={() => this.login(navigation)}>Login</Button>
+                                    <Button colorScheme='blueGray' w="45%" onPress={() => navigation.navigate('Signup')}>Sign up</Button>
+                                </HStack>
+                            </VStack>
+                        </Box>
+                    </Center>
+                </VStack>
+            </NativeBaseProvider>
+        );
     }
 }
 
@@ -99,41 +115,5 @@ LoginScreen.propTypes = {
         addListener: PropTypes.func.isRequired
     }).isRequired
 }
-
-const styles = StyleSheet.create({
-    cont: {
-        flex: 1,
-        backgroundColor: '#dedede'
-    },
-    centeredView: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    textInputView: {
-        height: 50,
-        backgroundColor: 'white',
-        borderRadius: 5,
-        padding: 10,
-        marginLeft: 40,
-        marginRight: 40,
-        marginBottom: 20,
-        alignSelf: 'stretch',
-    },
-    buttonOverview: {
-        flexDirection: 'row',
-        width: 300,
-        justifyContent: 'space-evenly'
-    },
-    buttonView: {
-        width: 100
-    },
-    textView: {
-        fontSize: 50,
-        fontFamily: 'DejaVu Sans Mono, monospace',
-        fontWeight: 'bold',
-        marginTop: 100,
-        marginBottom: 100
-    }
-})
 
 export default LoginScreen;

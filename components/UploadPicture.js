@@ -92,7 +92,7 @@ class UploadPicture extends Component {
                     </Camera>
                 </View>
             );
-        }    
+        }     
         return (
             <Text>No access to camera</Text>
         );      
