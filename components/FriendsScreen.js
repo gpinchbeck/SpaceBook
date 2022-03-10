@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, Button } from 'react-native';
+import { Box, NativeBaseProvider, Text, Button, VStack, HStack, Image, FlatList, Divider } from 'native-base';
 import PropTypes from 'prop-types';
-
 import Storage from './Storage'
 import DisplayAlert from './DisplayAlert';
 
@@ -15,7 +14,7 @@ class FriendsScreen extends Component {
 
         this.state = {
             data: {},
-            friends: {}
+            friends: []
         }
     }
 
@@ -34,6 +33,7 @@ class FriendsScreen extends Component {
 
     getFriends(){
         const { data } = this.state; 
+        const friendsList = [];
         fetch(`http://localhost:3333/api/1.0.0/user/${ data.id }/friends`, {
             method: 'GET',
             headers: {
@@ -56,38 +56,85 @@ class FriendsScreen extends Component {
             return response.json()
         })
         .then((responseJson) => {
-            this.setState({
-                friends: responseJson
-            });
+            if (responseJson.length > 0){
+                for (let j=0;j<responseJson.length;j+=1){
+                    this.getProfileImage(responseJson[j].user_id)
+                        .then((responseBlob) => {
+                            const responseUrl = URL.createObjectURL(responseBlob);
+                            friendsList.push([responseJson[j], responseUrl])
+                            this.setState({
+                                friends: friendsList
+                            });
+                        });
+                }
+            }
         })
         .catch((error) => {
             displayAlert.displayAlert(error);
         })
     }
 
+    getProfileImage(userId) {
+        const { data } = this.state;
+        return fetch(`http://localhost:3333/api/1.0.0/user/${  userId  }/photo`, {
+            method: 'GET',
+            headers: {
+                'X-Authorization': data.token
+            }
+        })
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+            }
+            return response.blob();
+        })
+    }
+
+    viewPost(item){
+        return (
+            <HStack p="5">
+                <Box>
+                    <HStack space={5}>
+                        <Image source={{uri: item[1]}} size={50} borderRadius="100" alt="Profile Picture"/>
+                        <Text bold>{item[0].user_givenname} {item[0].user_familyname}</Text>
+                    </HStack>
+                </Box>
+            </HStack>
+        );
+    }
+
     render() {
         const { navigation } = this.props;
         const { friends } = this.state;
         return (
-            <View>
-                <View>
-                    <FlatList
-                        data={friends}
-                        renderItem={({item}) => (
-                            <View style={{borderWidth: 1, borderColor: 'gray'}}>
-                                <Text>{item.user_id}</Text>
-                                <Text>{item.user_givenname}</Text>
-                                <Text>{item.user_familyname}</Text>
-                            </View>
-                        )}
-                        keyExtractor={(item) => item.user_id}
-                    />
-                </View>
-                <View>  
-                    <Button title='Find friends' onPress={() => navigation.navigate('FindFriends')}/>   
-                    <Button title='Friend requests' onPress={() => navigation.navigate('FriendRequests')}/>
-                </View>
-            </View>
+            <NativeBaseProvider>
+                <Box flex={1} pl="5" pr="5">
+                    <Box flex={1}>
+                        <FlatList
+                            data={friends}
+                            renderItem={({item}) => (
+                                <Box>
+                                    {this.viewPost(item)}
+                                    <Divider bg="muted.400"/>
+                                </Box>
+                            )}
+                            keyExtractor={(item, index) => index.toString()}
+                        />
+                    </Box>
+                    <Box pb="5">
+                        <VStack space={5}>
+                            <Button h="50" bg="darkBlue.700" onPress={() => navigation.navigate('FindFriends')}>Find Friends</Button>
+                            <Button h="50" bg="darkBlue.700" onPress={() => navigation.navigate('FriendRequests')}>Friend requests</Button>
+                        </VStack>
+                    </Box>
+                </Box>
+            </NativeBaseProvider>
         );
     }
 }

@@ -385,10 +385,10 @@ class FeedScreen extends Component {
                             <Modal.Footer justifyContent="space-evenly" >
                                 { Object.keys(currentPost[0]).length > 0 && <HStack space={2}>
                                     <Button bg="darkBlue.700" onPress={() => this.setState({viewPostModalVisible: false})}>Cancel</Button>
-                                    {!editVisible && (currentPost[0].author.user_id === data.id) && <Button onPress={() => this.setState({editVisible: true, viewPostModalVisible: false})}>Edit</Button>}
-                                    {!editVisible && (currentPost[0].author.user_id === data.id) && <Button onPress={() => this.deletePost(currentPost[0].post_id)}>Delete</Button>}
-                                    {!editVisible && (currentPost[0].author.user_id !== data.id) && <Button onPress={() => this.likePost(currentPost[0].author.user_id,currentPost[0].post_id)}>Like</Button>}
-                                    {!editVisible && (currentPost[0].author.user_id !== data.id) && <Button onPress={() => this.deleteLike(currentPost[0].author.user_id,currentPost[0].post_id)}>Unlike</Button>}
+                                    {!editVisible && (currentPost[0].author.user_id === data.id) && <Button bg="darkBlue.700" onPress={() => this.setState({editVisible: true, viewPostModalVisible: false})}>Edit</Button>}
+                                    {!editVisible && (currentPost[0].author.user_id === data.id) && <Button bg="darkBlue.700" onPress={() => this.deletePost(currentPost[0].post_id)}>Delete</Button>}
+                                    {!editVisible && (currentPost[0].author.user_id !== data.id) && <Button bg="darkBlue.700" onPress={() => this.likePost(currentPost[0].author.user_id,currentPost[0].post_id)}>Like</Button>}
+                                    {!editVisible && (currentPost[0].author.user_id !== data.id) && <Button bg="darkBlue.700" onPress={() => this.deleteLike(currentPost[0].author.user_id,currentPost[0].post_id)}>Unlike</Button>}
                                 </HStack>}
                             </Modal.Footer>
                         </Modal.Content>

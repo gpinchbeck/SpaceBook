@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Camera } from 'expo-camera';
-
+import PropTypes from 'prop-types';
 import DisplayAlert from './DisplayAlert';
 import Storage from './Storage'
 
@@ -31,6 +31,7 @@ class UploadPicture extends Component {
     }
 
     sendToServer = async (data) => {
+        const { navigation } = this.props;
         const { loginInfo } = this.state;
 
         const res = await fetch(data.base64);
@@ -57,7 +58,9 @@ class UploadPicture extends Component {
             if (response.status === 500){
                 return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
             } 
-            return displayAlert(`Picture uploaded`);
+            
+            displayAlert.displayAlert(`Picture uploaded`);
+            return navigation.navigate('Settings');
         })
         .catch((error) => {
             displayAlert.displayAlert(error);
@@ -97,6 +100,13 @@ class UploadPicture extends Component {
             <Text>No access to camera</Text>
         );      
     }
+}
+
+UploadPicture.propTypes = {
+    navigation: PropTypes.shape({
+        navigate: PropTypes.func.isRequired,
+        addListener: PropTypes.func.isRequired
+    }).isRequired
 }
 
 export default UploadPicture;

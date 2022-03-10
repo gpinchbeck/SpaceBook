@@ -21,6 +21,22 @@ class Storage {
         }
     }
 
+    async updateDraft(newVal, oldVal){
+        const drafts = await this.getDrafts();
+        const index = drafts.indexOf(oldVal);
+        drafts[index] = newVal;
+        const r = await AsyncStorage.setItem('@spacebook_savedDrafts', JSON.stringify(drafts));
+        return r;
+    }
+
+    async removeDraft(val){
+        const drafts = await this.getDrafts();
+        const index = drafts.indexOf(val);
+        drafts.splice(index, 1);
+        const r = await AsyncStorage.setItem('@spacebook_savedDrafts', JSON.stringify(drafts));
+        return r;
+    }
+
     async saveDraft(value){
         const drafts = await this.getDrafts();
         const updatedDrafts = [...drafts, value];

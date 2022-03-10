@@ -21,6 +21,10 @@ class ProfileScreen extends Component {
     }
 
     componentDidMount() {
+        this.getScreen();
+    }
+
+    getScreen(){
         const { navigation } = this.props;
         asyncStorage.getData((data) => {
             this.setState({

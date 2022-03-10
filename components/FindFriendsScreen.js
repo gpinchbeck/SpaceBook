@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, Button, TextInput } from 'react-native';
-
+import { NativeBaseProvider, Box, Input, FlatList, Text, Icon, HStack, Pressable, Divider } from 'native-base';
+import { MaterialIcons } from '@expo/vector-icons';
 import DisplayAlert from './DisplayAlert';
 import Storage from './Storage'
 
@@ -92,27 +92,36 @@ class FindFreindsScreen extends Component {
 
     render(){
         const { users, searchText, data } = this.state;
-        return(
-            <View>
-                <View>
-                    <TextInput placeholder='Search' onChangeText={(newSearch) => this.setState({searchText: newSearch})} value={searchText}/>
-                    <Button title='Search' onPress={() => this.getUsers()}/>
-                </View>
-                <View>
-                    <FlatList extraData={users} data={users}
+        const bgDark = "darkBlue.700";
+        const inputBg = "blueGray.500";
+        const textColour = "white";
+        return (
+            <NativeBaseProvider>
+                <Box bg='#f2f2f2' pl="5" pr="5">
+                    <Box pt="5">
+                        <Input bg={inputBg} color={textColour} placeholderTextColor={textColour} placeholder="Search" 
+                            InputRightElement={<Pressable onPress={() => this.getUsers()}><Icon as={<MaterialIcons name="search"/>} size={5} mr="2" color={textColour}/></Pressable>}
+                            onChangeText={value => this.setState({searchText: value})} value={searchText}/>
+                    </Box>
+                    <Box>
+                        <FlatList extraData={users} data={users}
                         renderItem={({item}) => (
-                            <View>
-                                { item.user_id !== data.id && <View>
-                                    <Text>{item.user_givenname} {item.user_familyname}</Text>
-                                    <Button title='Add' onPress={() => this.addFriend(item.user_id)}/>
-                                </View> }
-                            </View>
+                            <Box flex={1}>
+                                { item.user_id !== data.id && <Box>
+                                    <HStack w="100%" justifyContent="space-between" p="5">
+                                        <Text>{item.user_givenname} {item.user_familyname}</Text>
+                                        <Pressable borderRadius={100} p="2" bg={bgDark} onPress={() => this.addFriend(item.user_id)}><Icon as={<MaterialIcons name="add"/>} size={5} color={textColour}/></Pressable>
+                                    </HStack>
+                                    <Divider bg="muted.400"/>
+                                </Box> }
+                            </Box>
                         )}
                         keyExtractor={(item) => item.user_id}
                     />
-                </View>
-            </View>
-        )
+                    </Box>
+                </Box>
+            </NativeBaseProvider>
+        );
     }
 }
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Button, FlatList, Text, View } from 'react-native';
-
+import { Box, NativeBaseProvider, HStack, Text, Pressable, Icon, FlatList, Divider } from 'native-base';
+import { MaterialIcons } from '@expo/vector-icons';
 import DisplayAlert from './DisplayAlert';
 import Storage from './Storage'
 
@@ -106,21 +106,30 @@ class FriendRequestScreen extends Component {
 
     render(){
         const { requestList } = this.state;
+        const bgDark = "darkBlue.700";
+        const textColour = "white";
         return (
-            <View>
-                <FlatList extraData={this.state} data={requestList} 
-                    renderItem={({item}) => (
-                        <View>
-                            <Text>{item.first_name} {item.last_name}</Text>
-                            <Button title='Accept' onPress={() => this.acceptRequest(item.user_id)}/>
-                            <Button title='Decline' onPress={() => this.declineRequest(item.user_id)}/>
-                        </View>
-                    )}
-                    key={Object.keys(requestList).length}
-                    keyExtractor={(item) => item.user_id}
-                />
-            </View>
-        )
+            <NativeBaseProvider>
+                <Box flex={1} pl="5" pr="5">
+                    <FlatList extraData={this.state} data={requestList} 
+                        renderItem={({item}) => (
+                            <Box flex={1}>
+                                <HStack w="100%" justifyContent="space-between" p="5">
+                                    <Text>{item.first_name} {item.last_name}</Text>
+                                    <HStack space={2}>
+                                        <Pressable borderRadius={100} p="2" bg={bgDark} onPress={() => this.acceptRequest(item.user_id)}><Icon as={<MaterialIcons name="add"/>} size={5} color={textColour}/></Pressable>
+                                        <Pressable borderRadius={100} p="2" bg={bgDark} onPress={() => this.declineRequest(item.user_id)}><Icon as={<MaterialIcons name="delete"/>} size={5} color={textColour}/></Pressable>
+                                    </HStack>
+                                </HStack>
+                                <Divider bg="muted.400"/>
+                            </Box>
+                        )}
+                        key={Object.keys(requestList).length}
+                        keyExtractor={(item) => item.user_id}
+                    />
+                </Box>
+            </NativeBaseProvider>
+        );
     }
 }
 

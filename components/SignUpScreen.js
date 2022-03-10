@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Box, Input, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack } from 'native-base';
+import { Box, Input, NativeBaseProvider, VStack, Button, Icon, Pressable, Center, HStack } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import PropTypes from 'prop-types';
 
@@ -66,7 +66,7 @@ class SignUpScreen extends Component {
                 if (response.status === 500){
                     return Promise.reject(new Error(`Server error. Status: ${  response.status}`));
                 }
-                this.setState({first_name: '',last_name: '',email: '',password: '', confirmPass: ''})
+                this.setState({firstName: '',lastName: '',email: '',password: '', confirmPass: ''})
                 return displayAlert.displayAlert('User created.');
             })
             .catch((error) => {

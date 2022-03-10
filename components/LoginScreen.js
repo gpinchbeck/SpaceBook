@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Box, Input, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack } from 'native-base';
+import { Box, Input, NativeBaseProvider, Text, VStack, Button, Icon, Pressable, Center, HStack } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import { PropTypes } from 'prop-types';
 

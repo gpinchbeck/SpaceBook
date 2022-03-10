@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Box, Input, NativeBaseProvider, Text, VStack, Button, Stack, Icon, Pressable, Center, useContrastText, HStack, Image, Divider } from 'native-base';
+import { Input, NativeBaseProvider, VStack, Button, Icon, Pressable, Center, HStack} from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import PropTypes from 'prop-types';
 
@@ -77,7 +77,7 @@ class SettingsScreen extends Component {
     }
 
     updateDetails(){
-        const { data, userData, firstName, lastName, email, password } = this.state;
+        const { data, userData, firstName, lastName, email, password, confirmPass } = this.state;
         const toSend = {};
 
         if (email === '' || password === '' || confirmPass === '' || firstName === '' || lastName === ''){
