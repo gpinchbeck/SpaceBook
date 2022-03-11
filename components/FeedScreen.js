@@ -23,7 +23,9 @@ class FeedScreen extends Component {
             uploadModalVisible: false,
             viewPostModalVisible: false,
             postText: '',
+            singlePost: [],
             currentPost: [],
+            gotPost: false,
             editText: '',
             editVisible: false,
         }
@@ -124,6 +126,44 @@ class FeedScreen extends Component {
         }
     }
 
+    getSinglePost(id, postId){
+        const { data } = this.state;
+        const postsList = [];
+        return fetch(`http://localhost:3333/api/1.0.0/user/${ id }/post/${ postId }`, {
+            method: 'GET',
+            headers: {
+                'X-Authorization': data.token
+            }
+        })
+        .then((response) => {
+            if (response.status === 401){
+                return Promise.reject(new Error(`Unauthorised`));
+            }
+            if (response.status === 403){
+                return Promise.reject(new Error(`Can only view the posts of yourself or your friends.`));
+            }
+            if (response.status === 404){
+                return Promise.reject(new Error(`Not found.`));
+            }
+            if (response.status === 500){
+                return Promise.reject(new Error(`Server error.`));
+            }
+            return response.json()
+        })
+        .then((responseJson) => {
+            this.getProfileImage(id)
+            .then((responseBlob) => {
+                const responseUrl = URL.createObjectURL(responseBlob);
+                postsList.push(responseJson, responseUrl)
+                this.setState({
+                    gotPost: true,
+                    singlePost: postsList
+                });
+            });        
+        })
+        .catch((error) => console.log(error))
+    }
+
     getProfileImage(userId) {
         const { data } = this.state;
         return fetch(`http://localhost:3333/api/1.0.0/user/${  userId  }/photo`, {
@@ -144,6 +184,7 @@ class FeedScreen extends Component {
             }
             return response.blob();
         })
+        .catch((error) => console.log(error))
     }
 
     uploadPost(){
@@ -331,13 +372,16 @@ class FeedScreen extends Component {
 
     render(){
         const { navigation } = this.props;
-        const { uploadModalVisible, viewPostModalVisible, posts, currentPost, editVisible, data, editText, postText } = this.state;
+        const { uploadModalVisible, viewPostModalVisible, posts, currentPost, editVisible, data, editText, postText, singlePost, gotPost } = this.state;
         return (
             <NativeBaseProvider>
                 <Box flex={1} boxSize="100%">
                     <FlatList extraData={this.state} data={posts}
                         renderItem={({item}) => (
-                            <Pressable onPress={() => {this.setState({viewPostModalVisible: true, currentPost: item})}} pl="5" pr="5" pb="5" pt="5">
+                            <Pressable onPress={() => {
+                                    this.getSinglePost(item[0].author.user_id, item[0].post_id);
+                                    this.setState({viewPostModalVisible: true, currentPost: item});
+                                }} pl="5" pr="5" pb="5" pt="5">
                                 {this.viewPost(item)}
                                 <Divider mt={10} bg="muted.400"/>
                             </Pressable>
@@ -374,12 +418,10 @@ class FeedScreen extends Component {
                     {currentPost.length > 0 && <Modal isOpen={viewPostModalVisible} onClose={() => this.setState({viewPostModalVisible: false})}>
                         <Modal.Content maxWidth="400px">
                             <Modal.CloseButton/>
-                            <Modal.Header>
-                                <Text>Post</Text>
-                            </Modal.Header>
+                            <Modal.Header>Post</Modal.Header>
                             <Modal.Body>
                                 <FormControl>
-                                    {this.viewPost(currentPost)}
+                                    {gotPost && this.viewPost(singlePost)}
                                 </FormControl>
                             </Modal.Body>
                             <Modal.Footer justifyContent="space-evenly" >

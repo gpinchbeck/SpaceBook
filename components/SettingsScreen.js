@@ -80,8 +80,8 @@ class SettingsScreen extends Component {
         const { data, userData, firstName, lastName, email, password, confirmPass } = this.state;
         const toSend = {};
 
-        if (email === '' || password === '' || confirmPass === '' || firstName === '' || lastName === ''){
-            displayAlert.displayAlert('Must have at least one field entered to update and must be diferent.');
+        if (email === '' && password === '' && confirmPass === '' && firstName === '' && lastName === ''){
+            displayAlert.displayAlert('Must have at least one field entered to update and must be different.');
         }
         else {
             if (userData.first_name !== firstName && firstName.length > 0){
@@ -90,16 +90,20 @@ class SettingsScreen extends Component {
             if (userData.last_name !== lastName && lastName.length > 0){
                 toSend.last_name = lastName;
             }
-            if (userData.email !== email && email.length > 0 && this.emailIsValid()){
-                toSend.email = email;
-            } else {
-                displayAlert.displayAlert('Must be a valid email');
+            if (email !== ''){
+                if (userData.email !== email && email.length > 0 && this.emailIsValid()){
+                    toSend.email = email;
+                } else {
+                    displayAlert.displayAlert('Must be a valid email');
+                }
             }
 
-            if (password.length > 5 && password === confirmPass){
-                toSend.password = password;
-            } else {
-                displayAlert.displayAlert('Passwords must be greater than 5 and match.');
+            if (password !== ''){
+                if (password.length > 5 && password === confirmPass){
+                    toSend.password = password;
+                } else {
+                    displayAlert.displayAlert('Passwords must be greater than 5 and match.');
+                }
             }
 
             if (Object.keys(toSend).length > 0) {
