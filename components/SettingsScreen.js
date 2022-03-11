@@ -164,7 +164,7 @@ class SettingsScreen extends Component {
                                 color={textColour}/></Pressable>} placeholder="Confirm Password"
                                 onChangeText={value => this.setState({confirmPass: value})} value={confirmPass}/>
                             <HStack w="100%" justifyContent="space-between">
-                                <Button bg={bgDark} w="45%" onPress={() => navigation.navigate('Upload')}>Update Picture</Button>
+                                <Button bg={bgDark} w="52%" onPress={() => navigation.navigate('Upload')}>Change Picture</Button>
                                 <Button bg={bgDark} w="45%" onPress={() => this.updateDetails()}>Update</Button>
                             </HStack>
                         </VStack>

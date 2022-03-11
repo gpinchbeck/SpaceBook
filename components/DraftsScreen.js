@@ -4,6 +4,9 @@ import { NativeBaseProvider, Box, Modal, FlatList, Button, Text, Pressable, Divi
 // import BackgroundFetch from 'react-native-background-fetch';
 // import BackgroundTimer from 'react-native-background-timer';
 import DateTimePicker from 'react-datetime-picker';
+import './style.css'
+// import DateTimePicker from 'react-datetime-picker';
+// import DateTimePicker from '@react-native-community/datetimepicker';
 // import { BackgroundFetchOptions, BackgroundFetchResult, BackgroundFetchStatus } from 'react-native-web-background-fetch';
 import PropTypes from 'prop-types';
 import Storage from './Storage';
@@ -155,8 +158,8 @@ class DraftsScreen extends Component {
                             <Modal.CloseButton/>
                             <Modal.Header>Edit Post</Modal.Header>
                             <Modal.Body h="350">
-                                <Box>
-                                    <DateTimePicker onChange={(newDate) => this.setState({date: newDate})} value={date}/>
+                                <Box bg="green.300">
+                                    <DateTimePicker value={date}  onChange={(newDate) => this.setState({date: newDate})}/>
                                 </Box>
                             </Modal.Body>
                             <Modal.Footer justifyContent="space-evenly" >

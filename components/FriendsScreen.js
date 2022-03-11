@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Box, NativeBaseProvider, Text, Button, VStack, HStack, Image, FlatList, Divider } from 'native-base';
+import { Image } from 'react-native';
+import { Box, NativeBaseProvider, Text, Button, VStack, HStack, FlatList, Divider } from 'native-base';
 import PropTypes from 'prop-types';
 import Storage from './Storage'
 import DisplayAlert from './DisplayAlert';
@@ -101,7 +102,7 @@ class FriendsScreen extends Component {
             <HStack p="5">
                 <Box>
                     <HStack space={5}>
-                        <Image source={{uri: item[1]}} size={50} borderRadius="100" alt="Profile Picture"/>
+                        <Image source={{uri: item[1]}} style={{width: 50, height: 50, borderRadius: 100 }} accessible accessibilityLabel={`Profile Picture for ${ item[0].user_givenname } ${ item[0].user_familyname }`}/>
                         <Text bold>{item[0].user_givenname} {item[0].user_familyname}</Text>
                     </HStack>
                 </Box>

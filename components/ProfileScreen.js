@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Box, NativeBaseProvider, Text, VStack, Button, HStack, Image, Divider } from 'native-base';
+import { Image } from 'react-native';
+import { Box, NativeBaseProvider, Text, VStack, Button, HStack, Divider } from 'native-base';
 import PropTypes from 'prop-types';
 
 import DisplayAlert from './DisplayAlert';
@@ -47,59 +48,30 @@ class ProfileScreen extends Component {
                 'X-Authorization': loginInfo.token
             }
         })
-        .then((response) => {
-            if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
-            }
-            if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
-            }
-            if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
-            }
-            return response.blob()
-        })
+        .then((response) => response.blob())
         .then((responseBlob) => {
             const data = URL.createObjectURL(responseBlob);
             this.setState({
                 img: data
             });
-        })
-        .catch((error) => {
-            displayAlert.displayAlert(error);
-        })
+        });
     }
 
-    getUserData() {
+    async getUserData() {
         const { loginInfo } = this.state;
-        fetch(`http://localhost:3333/api/1.0.0/user/${  loginInfo.id}`,{
-            method: 'GET',
-            headers: {
-                'X-Authorization': loginInfo.token
+        const response = await fetch(
+            `http://localhost:3333/api/1.0.0/user/${  loginInfo.id}`,
+            {
+                method: 'get',
+                headers: {
+                    'X-Authorization': loginInfo.token,
+                },
             }
-        })
-        .then((response) => {
-            if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
-            }
-            if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
-            }
-            if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
-            }
-
-            return response.json()
-        })
-        .then((responseJson) => {
-            this.setState({
-                userData: responseJson,
-            });
-        })
-        .catch((error) => {
-            displayAlert.displayAlert(error);
-        })
-        
+        );
+        const result = await response.json();
+        this.setState({
+            userData: result,
+        });
     }
 
     logout(nav) {
@@ -134,7 +106,8 @@ class ProfileScreen extends Component {
                     <VStack flex={1}>
                         <Box pb="5">
                             <HStack space={5}>
-                                {img !== null &&<Image source={{uri: img}} size={100} borderRadius="100" alt="Profile Picture"/>}
+                                <Image source={{uri: img}} style={{width:100, height:100, borderRadius: 100}} accessible accessibilityLabel={`Profile Picture for ${ userData.first_name } ${ userData.last_name }`}/>
+                                {/* <Image source={{uri: img}} size={100} borderRadius="100" alt="Profile Picture"/> */}
                                 <VStack justifyContent="center" space={2}>
                                     <Text>{userData.first_name}</Text>
                                     <Text>{userData.last_name}</Text>

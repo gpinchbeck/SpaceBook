@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Box, NativeBaseProvider, Text, VStack, Button, Icon, Pressable, HStack, Image, FlatList, Divider, Fab, Modal, FormControl, Input } from 'native-base';
+import { Image } from 'react-native';
+import { Box, NativeBaseProvider, Text, VStack, Button, Icon, Pressable, HStack, FlatList, Divider, Fab, Modal, FormControl, Input } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
-// import { Button, FlatList, Text, View, Modal, TextInput, Pressable, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 import Moment from 'react-moment';
 
@@ -312,7 +312,7 @@ class FeedScreen extends Component {
         <HStack justifyContent="space-between">
             <Box>
                 <HStack space={5}>
-                    <Image source={{uri: item[1]}} size={50} borderRadius="100" alt="Profile Picture"/>
+                    <Image source={{uri: item[1]}} style={{width: 50, height: 50, borderRadius: 100}} accessible accessibilityLabel={`Profile Picture for ${ item[0].author.first_name } ${ item[0].author.last_name }`}/>
                     <VStack>
                         <Text  bold>{item[0].author.first_name} {item[0].author.last_name}</Text>
                         <Text>{item[0].text}</Text>

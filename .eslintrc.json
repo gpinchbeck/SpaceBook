@@ -18,6 +18,8 @@
     "react/prefer-stateless-function": [0, { "ignorePureComponents": true }],
     "react/no-unstable-nested-components": [ "off" ,{ "allowAsProps": true }],
     "no-use-before-define": ["error", { "functions": true, "classes": true, "variables": false }],
-    "class-methods-use-this": [1, { "exceptMethods": ["acceptRequest", "declineRequest", "viewPost"] }]
+    "class-methods-use-this": [1, { "exceptMethods": ["getData", "storeData", "getDrafts", "displayAlert", "render", "acceptRequest", "declineRequest", "viewPost"] }],
+    "no-console": ["error", { "allow": ["log", "error"] }],
+    "no-alert": 0
   }
 }
