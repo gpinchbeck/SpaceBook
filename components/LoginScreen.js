@@ -53,10 +53,10 @@ class LoginScreen extends Component {
             })
             .then((response) => {
                 if (response.status === 400){
-                    return Promise.reject(new Error(`Incorrect email or password. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`Incorrect email or password.`));
                 }
                 if (response.status === 500){
-                    return Promise.reject(new Error(`Server error. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`Server error.`));
                 }
                 return response.json();
             })

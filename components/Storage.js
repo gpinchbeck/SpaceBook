@@ -21,30 +21,34 @@ class Storage {
         }
     }
 
-    async updateDraft(newVal, oldVal){
-        const drafts = await this.getDrafts();
+    async updateDraft(userId, newVal, oldVal){
+        const key = `@spacebook_savedDrafts_${ userId }`;
+        const drafts = await this.getDrafts(userId);
         const index = drafts.indexOf(oldVal);
         drafts[index] = newVal;
-        const r = await AsyncStorage.setItem('@spacebook_savedDrafts', JSON.stringify(drafts));
+        const r = await AsyncStorage.setItem(key.toString(), JSON.stringify(drafts));
         return r;
     }
 
-    async removeDraft(val){
-        const drafts = await this.getDrafts();
+    async removeDraft(userId, val){
+        const key = `@spacebook_savedDrafts_${ userId }`;
+        const drafts = await this.getDrafts(userId);
         const index = drafts.indexOf(val);
         drafts.splice(index, 1);
-        const r = await AsyncStorage.setItem('@spacebook_savedDrafts', JSON.stringify(drafts));
+        const r = await AsyncStorage.setItem(key.toString(), JSON.stringify(drafts));
         return r;
     }
 
-    async saveDraft(value){
-        const drafts = await this.getDrafts();
+    async saveDraft(userId, value){
+        const key = `@spacebook_savedDrafts_${ userId }`;
+        const drafts = await this.getDrafts(userId);
         const updatedDrafts = [...drafts, value];
-        await AsyncStorage.setItem('@spacebook_savedDrafts', JSON.stringify(updatedDrafts));
+        await AsyncStorage.setItem(key.toString(), JSON.stringify(updatedDrafts));
     }
 
-    async getDrafts(){
-        const drafts = await AsyncStorage.getItem('@spacebook_savedDrafts');
+    async getDrafts(userId){
+        const key = `@spacebook_savedDrafts_${ userId }`;
+        const drafts = await AsyncStorage.getItem(key.toString());
         return drafts ? JSON.parse(drafts) : [];
     }
 

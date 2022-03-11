@@ -39,10 +39,10 @@ class FriendRequestScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             } 
             return response.json()
         })
@@ -75,13 +75,13 @@ class FriendRequestScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             }
             return response.blob();
         })
@@ -97,13 +97,13 @@ class FriendRequestScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             } 
             this.getRequests();
             return displayAlert.displayAlert('Accepted.');
@@ -123,13 +123,13 @@ class FriendRequestScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             } 
             this.getRequests();
             return displayAlert.displayAlert('Declined.');

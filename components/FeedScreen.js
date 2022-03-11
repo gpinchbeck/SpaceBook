@@ -53,16 +53,16 @@ class FeedScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 403){
-                return Promise.reject(new Error(`Can only view the friends of yourself or your friends. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Can only view the friends of yourself or your friends`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             }
             return response.json()
         })
@@ -91,16 +91,16 @@ class FeedScreen extends Component {
             })
             .then((response) => {
                 if (response.status === 401){
-                    return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`Unauthorised`));
                 }
                 if (response.status === 403){
-                    return Promise.reject(new Error(`Can only view the posts of yourself or your friends. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`Can only view the posts of yourself or your friends.`));
                 }
                 if (response.status === 404){
-                    return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`Not found.`));
                 }
                 if (response.status === 500){
-                    return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                    return Promise.reject(new Error(`Server error.`));
                 }
                 return response.json()
             })
@@ -134,13 +134,13 @@ class FeedScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             }
             return response.blob();
         })
@@ -160,16 +160,16 @@ class FeedScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 403){
-                return Promise.reject(new Error(`Can only view the friends of yourself or your friends. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Can only view the friends of yourself or your friends.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             }            
             this.getPosts(); 
             return displayAlert.displayAlert('Post uploaded.');
@@ -189,16 +189,16 @@ class FeedScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 403){
-                return Promise.reject(new Error(`Can only delete your own posts. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Can only delete your own posts.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             } 
             this.getPosts();
             this.setState({viewPostModalVisible: false});
@@ -221,19 +221,19 @@ class FeedScreen extends Component {
         })
         .then((response) => {
             if (response.status === 400){
-                return Promise.reject(new Error(`Bad request. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Bad request.`));
             }
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 403){
-                return Promise.reject(new Error(`Can only update your own posts. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Can only update your own posts.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             } 
             this.getPosts();
             this.setState({viewPostModalVisible: false})
@@ -254,19 +254,19 @@ class FeedScreen extends Component {
         })
         .then((response) => {
             if (response.status === 400){
-                return Promise.reject(new Error(`Post already liked. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Post already liked.`));
             }
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 403){
-                return Promise.reject(new Error(`Can only like your friends posts. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Can only like your friends posts.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             } 
             this.getPosts();
             this.setState({viewPostModalVisible: false});
@@ -287,16 +287,16 @@ class FeedScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 403){
-                return Promise.reject(new Error(`You have not liked this post. Status: ${  response.status}`));
+                return Promise.reject(new Error(`You have not liked this post.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             } 
             this.getPosts();
             this.setState({viewPostModalVisible: false});
@@ -359,7 +359,7 @@ class FeedScreen extends Component {
                                 <Button.Group space={2}>
                                     <Button bg="darkBlue.700" onPress={() => this.setState({uploadModalVisible: false, postText: ''})}>Cancel</Button>
                                     <Button bg="darkBlue.700" onPress={() => {
-                                        asyncStorage.saveDraft(postText);
+                                        asyncStorage.saveDraft(data.id, postText);
                                         this.setState({uploadModalVisible: false, postText: ''})
                                         displayAlert.displayAlert('Post saved as draft.');
                                     }}>Save as draft</Button>

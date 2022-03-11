@@ -61,10 +61,10 @@ class SignUpScreen extends Component {
             })
             .then((response) => {
                 if (response.status === 400){
-                    return Promise.reject(new Error(`User already created. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`User already created.`));
                 }
                 if (response.status === 500){
-                    return Promise.reject(new Error(`Server error. Status: ${  response.status}`));
+                    return Promise.reject(new Error(`Server error.`));
                 }
                 this.setState({firstName: '',lastName: '',email: '',password: '', confirmPass: ''})
                 return displayAlert.displayAlert('User created.');

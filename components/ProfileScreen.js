@@ -84,10 +84,10 @@ class ProfileScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             }
             nav.navigate('Login');
             return displayAlert.displayAlert('Logged out.');

@@ -37,16 +37,17 @@ class DraftsScreen extends Component {
             this.setState({
                 data
             });
-            this.getDrafts();
+            this.getDrafts(data.id);
             navigation.addListener('focus', () => {
-                this.getDrafts();
+                this.getDrafts(data.id);
             });
         });
         // BackgroundFetchOptions
     }
 
     async getDrafts(){
-        const res = await asyncStorage.getDrafts();
+        const { data } = this.state;
+        const res = await asyncStorage.getDrafts(data.id);
         this.setState({drafts: res});
     }
 
@@ -88,18 +89,18 @@ class DraftsScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 403){
-                return Promise.reject(new Error(`Can only view the friends of yourself or your friends. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Can only view the friends of yourself or your friends.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             }            
-            asyncStorage.removeDraft(currentDraft).then(() => this.getDrafts());
+            asyncStorage.removeDraft(data.id, currentDraft).then(() => this.getDrafts());
             this.setState({currentDraft: '', viewDraftModalVisible: false})
             return displayAlert.displayAlert('Post uploaded.');
         })
@@ -109,13 +110,13 @@ class DraftsScreen extends Component {
     }
 
     updateDraft(){
-        const { newPostText, currentDraft } = this.state;
-        asyncStorage.updateDraft(newPostText, currentDraft).then(() => this.getDrafts());
+        const { data, newPostText, currentDraft } = this.state;
+        asyncStorage.updateDraft(data.id, newPostText, currentDraft).then(() => this.getDrafts());
         displayAlert.displayAlert('Draft updated.');
     }
 
     render(){
-        const { drafts, viewDraftModalVisible, currentDraft, viewDate, date, newPostText, editVisible } = this.state;
+        const { data, drafts, viewDraftModalVisible, currentDraft, viewDate, date, newPostText, editVisible } = this.state;
         return (
             <NativeBaseProvider>
                 <Box flex={1} pl="5" pr="5">
@@ -182,6 +183,11 @@ class DraftsScreen extends Component {
                             <Modal.Footer justifyContent="space-evenly" >
                                 <Button.Group space={2}>
                                     <Button bg="darkBlue.700" onPress={() => this.setState({editVisible: false})}>Cancel</Button>
+                                    <Button bg="darkBlue.700" onPress={() => {
+                                        asyncStorage.removeDraft(data.id, currentDraft).then(() => this.getDrafts());
+                                        this.setState({currentDraft: '', viewDraftModalVisible: false});
+                                        displayAlert.displayAlert('Draft deleted.');
+                                    }}>Delete</Button>
                                     <Button bg="darkBlue.700" onPress={() => {
                                         this.updateDraft();
                                         this.setState({editVisible: false, newPostText: ''});

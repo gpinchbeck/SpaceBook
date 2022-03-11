@@ -46,13 +46,13 @@ class SettingsScreen extends Component {
         })
         .then((response) => {
             if (response.status === 401){
-                return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Unauthorised.`));
             }
             if (response.status === 404){
-                return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                return Promise.reject(new Error(`Not found.`));
             }
             if (response.status === 500){
-                return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                return Promise.reject(new Error(`Server error.`));
             }
             return response.json();
         })
@@ -113,19 +113,19 @@ class SettingsScreen extends Component {
                 })
                 .then((response) => {
                     if (response.status === 400){
-                        return Promise.reject(new Error(`Bad request. Status: ${  response.status}`));
+                        return Promise.reject(new Error(`Bad request.`));
                     }
                     if (response.status === 401){
-                        return Promise.reject(new Error(`Unauthorised. Status: ${  response.status}`));
+                        return Promise.reject(new Error(`Unauthorised.`));
                     }
                     if (response.status === 403){
-                        return Promise.reject(new Error(`Forbidden. Status: ${  response.status}`));
+                        return Promise.reject(new Error(`Forbidden.`));
                     }
                     if (response.status === 404){
-                        return Promise.reject(new Error(`Not found. Status: ${  response.status}`));
+                        return Promise.reject(new Error(`Not found.`));
                     }
                     if (response.status === 500){
-                        return Promise.reject(new Error(`Server error. Status: ${ response.status }`));
+                        return Promise.reject(new Error(`Server error.`));
                     } 
                     return displayAlert.displayAlert('Details updated');
                 })
