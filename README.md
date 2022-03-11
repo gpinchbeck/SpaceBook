@@ -12,3 +12,5 @@ Please run 'npm install --global npm@latest' before 'npm install' to make sure t
 I have kept to the airbnb styling guide for js react as well as prettier using a linter in vscode.
 
 To run the linter please run 'npm run lint'.
+
+Accessibility has been used on all the images with labels and the user can use keyboard tab to go through all the input options.
